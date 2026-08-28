@@ -26,7 +26,7 @@ def create_user(user: User) -> CreateUserResponse:
 
     # Por ahora, simplemente devolvemos un mensaje de éxito con los datos recibidos.
     return {
-        "message": "Usuario created succesfully"
+        "message": "Usuario created successfully"
     }
 
 @app.delete("/users/{id}")
@@ -35,7 +35,7 @@ def delete_user(id: int) -> DeleteUserResponse:
     for user in users:
         if user.id == id:
             users.remove(user)
-            return {"message":"User deleted"}
+            return {"message":"User deleted successfully"}
         
     raise HTTPException(
         status_code = status.HTTP_404_NOT_FOUND,
