@@ -1,10 +1,8 @@
 # Instalar antes: pip install FastApi
 # Para correr la FastApi: python -m uvicorn api:app --reload
-from fastapi import FastAPI
+from fastapi import FastAPI, status, HTTPException
 from models.users import User
-from pydantic import BaseModel, ValidationError
-from typing import List
-from models.users import User, GetUsersResponse, CreateUserResponse
+from models.users import User, GetUsersResponse, CreateUserResponse, DeleteUserResponse
 
 app = FastAPI()
 
@@ -28,16 +26,21 @@ def create_user(user: User) -> CreateUserResponse:
 
     # Por ahora, simplemente devolvemos un mensaje de éxito con los datos recibidos.
     return {
-        "message": "Usuario creado con éxito"
+        "message": "Usuario created succesfully"
     }
 
 @app.delete("/users/{id}")
-def delete_user(id: int):
+def delete_user(id: int) -> DeleteUserResponse:
+
     for user in users:
         if user.id == id:
             users.remove(user)
-            return {"message":"Usuario Eliminado"}
-    return {"message":"Usuario No encontrado"}
+            return {"message":"User deleted"}
+        
+    raise HTTPException(
+        status_code = status.HTTP_404_NOT_FOUND,
+        detail = "User not found"
+    )
 
 
 
