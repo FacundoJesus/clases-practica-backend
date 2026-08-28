@@ -1,6 +1,7 @@
 # Instalar antes en terminal: pip install pydantic
 # Instalar antes : pip install 'pydantic[email]'
 from pydantic import BaseModel, ValidationError, EmailStr, Field, HttpUrl, SecretStr, field_validator
+from typing import List
 
 class User(BaseModel):
     id: int
@@ -11,6 +12,7 @@ class User(BaseModel):
     edad: int = Field(gt=18, lt=30)  # gt = mayor que 18, lt = menor que 30
     password: SecretStr
     cuil: int
+    isActive: bool = True
 
     # Usamos field_validator apuntando al campo 'cuil'
     @field_validator('cuil')
@@ -23,23 +25,10 @@ class User(BaseModel):
         return v
 
 
+class GetUsersResponse(BaseModel):
+    users: List[User]
 
-# PRUEBA DE FUNCIONAMIENTO
-try:
-    user1 = User(
-        id=123, 
-        name="Facu", 
-        email="facundojesus@hotmail.com", 
-        apellido="Citera",
-        website="https://www.promiedos.com.ar/", 
-        edad=25, 
-        password="mi_password_secreto", # Pasado como string
-        cuil=20401587293
-    )
-
-    print("Nombre del usuario creado:", user1.name)
-
-except ValidationError as ex:
-    print("Error de validación:\n", ex)
+class CreateUserResponse(BaseModel):
+    message:str
 
 
