@@ -17,7 +17,8 @@ def get_all_users() -> GetUsersResponse:
     return r
 
 # Crear usuario
-# Crear sin repetir id !!!!!!!!!!!!!!!!!!!!!!!!
+# Crear sin repetir id
+# si existe devolver excepcion
 @app.post("/users")
 def create_user(user: User) -> CreateUserResponse:
     
@@ -31,7 +32,7 @@ def create_user(user: User) -> CreateUserResponse:
 
 @app.delete("/users/{id}")
 def delete_user(id: int) -> DeleteUserResponse:
-
+    # El id deberia ser un request
     for user in users:
         if user.id == id:
             users.remove(user)
