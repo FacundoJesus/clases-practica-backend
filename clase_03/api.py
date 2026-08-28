@@ -17,6 +17,7 @@ def get_all_users() -> GetUsersResponse:
     return r
 
 # Crear usuario
+# Crear sin repetir id
 @app.post("/users")
 def create_user(user: User) -> CreateUserResponse:
     # FastAPI ya validó automáticamente que los datos cumplan con el modelo 'User'
@@ -42,6 +43,11 @@ def delete_user(id: int) -> DeleteUserResponse:
         detail = "User not found"
     )
 
+# Agregar actualizar 
+
+# Obtener usuarios activos
+
+# Obtener usuarios inactivos
 
 
 
