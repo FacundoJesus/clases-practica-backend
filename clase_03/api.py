@@ -50,12 +50,18 @@ def get_inactive_users() -> GetUsersResponse:
 
     return GetUsersResponse(users=inactiveUsers)
 
+
 # Crear usuario
-# Crear sin repetir id
-# si existe devolver excepcion
 @app.post("/users")
 def create_user(user: User) -> CreateUserResponse:
-    
+
+    for existUser in users:
+        if existUser.id == user.id:
+            raise HTTPException(
+                status_code= status.HTTP_400_BAD_REQUEST,
+                detail= f"The User with id: {user.id} already exists."
+            )
+        
     users.append(user)
 
     return CreateUserResponse(
@@ -63,13 +69,14 @@ def create_user(user: User) -> CreateUserResponse:
         user= user
     )
 
+# Eliminar Usuario
 @app.delete("/users/{id}")
 def delete_user(id: int) -> DeleteUserResponse:
     # El id deberia ser un request
     for user in users:
         if user.id == id:
             users.remove(user)
-            return {"message":"User deleted successfully"}
+            return DeleteUserResponse(message="User deleted successfully")
         
     raise HTTPException(
         status_code = status.HTTP_404_NOT_FOUND,
@@ -78,9 +85,6 @@ def delete_user(id: int) -> DeleteUserResponse:
 
 # Agregar actualizar 
 
-# Obtener usuarios activos
-
-# Obtener usuarios inactivos
 
 
 
