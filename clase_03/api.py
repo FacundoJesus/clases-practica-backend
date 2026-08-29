@@ -10,28 +10,28 @@ users = []
 
 user1 = User(
     id=1,
-    name="Juan",
-    apellido="Perez",       
+    firstName="Juan",
+    lastName="Perez",       
     email="juan.perez@example.com",
-    edad=25,                
+    age=25,                
     cuil=20384756291,       
     isActive=True
 )
 user2 = User(
     id=2,
-    name="Maria",
-    apellido="Gomez",       
+    firstName="Maria",
+    lastName="Gomez",       
     email="maria.gomez@example.com",
-    edad=21,                
+    age=21,                
     cuil=27493827164,       
     isActive=True
 )
 user3 = User(
     id=3,
-    name="Lucas",
-    apellido="Rodriguez",   
+    firstName="Lucas",
+    lastName="Rodriguez",   
     email="lucas.rod@example.com",
-    edad=28,                
+    age=28,                
     cuil=20123456789,       
     isActive=False          
 )
@@ -43,6 +43,13 @@ users.append(user3)
 # Obtener todos los usuarios
 @app.get("/users")
 def get_all_users() -> GetUsersResponse:
+    
+    if not users:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = "Users not found"
+        )
+    
     return GetUsersResponse(users= users)
 
 
@@ -92,7 +99,7 @@ def create_user(user: User) -> CreateUserResponse:
         if existUser.id == user.id:
             raise HTTPException(
                 status_code= status.HTTP_400_BAD_REQUEST,
-                detail= f"User with id: {user.id} already exists"
+                detail= f"User with ID {user.id} already exists"
             )
         
     users.append(user)

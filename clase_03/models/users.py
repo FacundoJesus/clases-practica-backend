@@ -5,10 +5,10 @@ from typing import List
 
 class User(BaseModel):
     id: int
-    name: str
+    firstName: str
     email: EmailStr
-    apellido: str = Field(min_length=4)
-    edad: int = Field(gt=18, lt=30)  
+    lastName: str = Field(min_length=4)
+    age: int = Field(gt=18, lt=30)  
     cuil: int
     isActive: bool = True
 
@@ -18,7 +18,7 @@ class User(BaseModel):
     def cuil_validator(cls, v: int):
         # Convertimos a string para contar los dígitos fácilmente
         if len(str(v)) != 11:
-            raise ValueError('El CUIL debe tener exactamente 11 dígitos')
+            raise ValueError('The CUIL must have 11 digitis')
         # Siempre debes retornar el valor si pasa la validación
         return v
 
