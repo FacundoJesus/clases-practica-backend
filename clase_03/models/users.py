@@ -33,6 +33,6 @@ class CreateUserResponse(BaseModel):
 class DeleteUserResponse(BaseModel):
     message:str
 
-class UpdateeUserResponse(BaseModel):
+class UpdateUserResponse(BaseModel):
     message:str
     user:User
