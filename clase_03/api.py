@@ -1,6 +1,5 @@
 # Para correr la FastApi: python -m uvicorn api:app --reload
 from fastapi import FastAPI, status, HTTPException
-from models.users import User
 from models.users import User, GetUsersResponse, CreateUserResponse, DeleteUserResponse, UpdateUserResponse
 
 app = FastAPI()
