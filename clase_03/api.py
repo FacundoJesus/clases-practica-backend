@@ -101,6 +101,7 @@ def create_user(user: User) -> CreateUserResponse:
         user= user
     )
 
+
 # Eliminar Usuario
 @app.delete("/users/{id}")
 def delete_user(id: int) -> DeleteUserResponse:
@@ -116,7 +117,7 @@ def delete_user(id: int) -> DeleteUserResponse:
     )
 
 
-# Agregar actualizar 
+# Actualizar Usuario existente
 @app.put("/users/{id}")
 def update_user(user_id: int, user:User) -> UpdateUserResponse:
 
