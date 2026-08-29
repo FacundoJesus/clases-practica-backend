@@ -35,15 +35,16 @@ user3 = User(
     cuil=20123456789,       
     isActive=False          
 )
-
 users.append(user1)
 users.append(user2)
 users.append(user3)
+
 
 # Obtener todos los usuarios
 @app.get("/users")
 def get_all_users() -> GetUsersResponse:
     return GetUsersResponse(users= users)
+
 
 # Obtener Usuarios Activos
 @app.get("/users/active")
@@ -91,7 +92,7 @@ def create_user(user: User) -> CreateUserResponse:
         if existUser.id == user.id:
             raise HTTPException(
                 status_code= status.HTTP_400_BAD_REQUEST,
-                detail= f"User with id: {user.id} already exists."
+                detail= f"User with id: {user.id} already exists"
             )
         
     users.append(user)
@@ -119,25 +120,25 @@ def delete_user(id: int) -> DeleteUserResponse:
 
 # Actualizar Usuario existente
 @app.put("/users/{id}")
-def update_user(user_id: int, user:User) -> UpdateUserResponse:
+def update_user(id: int, user:User) -> UpdateUserResponse:
 
     for index, existing_user in enumerate(users):
-        if existing_user.id == user_id:
+        if existing_user.id == id:
 
             #BLINDAJE: Fuerzo que el ID del objeto sea SIEMPRE el de la URL.
-            user.id = user_id
+            user.id = id
 
             # Lo actualizo - (Reemplazar y retornar)
             users[index] = user
 
             return UpdateUserResponse(
-                message="Usuario actualizado exitosamente",
+                message="User updated successfully",
                 user= user
             )
             
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"Usuario con ID {user_id} no encontrado."
+        detail=f"User with ID {id} not found"
     )
 
 
