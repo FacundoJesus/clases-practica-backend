@@ -1,6 +1,6 @@
 # Instalar antes en terminal: pip install pydantic
 # Instalar antes : pip install 'pydantic[email]'
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, SecretStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, HttpUrl,field_validator
 from typing import List
 
 class User(BaseModel):
@@ -8,9 +8,7 @@ class User(BaseModel):
     name: str
     email: EmailStr
     apellido: str = Field(min_length=4)
-    website: HttpUrl
-    edad: int = Field(gt=18, lt=30)  # gt = mayor que 18, lt = menor que 30
-    password: SecretStr
+    edad: int = Field(gt=18, lt=30)  
     cuil: int
     isActive: bool = True
 
@@ -30,6 +28,7 @@ class GetUsersResponse(BaseModel):
 
 class CreateUserResponse(BaseModel):
     message:str
+    user:User
 
 class DeleteUserResponse(BaseModel):
     message:str

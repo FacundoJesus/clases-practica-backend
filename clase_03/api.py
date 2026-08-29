@@ -1,4 +1,3 @@
-# Instalar antes: pip install FastApi
 # Para correr la FastApi: python -m uvicorn api:app --reload
 from fastapi import FastAPI, status, HTTPException
 from models.users import User
@@ -9,12 +8,47 @@ app = FastAPI()
 # Array de usuarios
 users = []
 
-
 # Obtener todos los usuarios
 @app.get("/users")
 def get_all_users() -> GetUsersResponse:
-    r = GetUsersResponse(users= users)
-    return r
+    return GetUsersResponse(users= users)
+
+# Obtener Usuarios Activos
+@app.get("/users/active")
+def get_active_users() -> GetUsersResponse:
+
+    activeUsers = []
+
+    for user in users:
+        if user.isActive == True:
+            activeUsers.append(user)
+              
+    if not activeUsers:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = "Active users not found"
+        )
+    
+    return GetUsersResponse(users=activeUsers)
+
+
+# Obtener Usuarios Inactivos
+@app.get("/users/inactive")
+def get_inactive_users() -> GetUsersResponse:
+
+    inactiveUsers = []
+
+    for user in users:
+        if user.isActive == False:
+            inactiveUsers.append(user)
+
+    if not inactiveUsers:
+        raise HTTPException (
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail= "Inactive users not found"
+        )
+
+    return GetUsersResponse(users=inactiveUsers)
 
 # Crear usuario
 # Crear sin repetir id
@@ -22,13 +56,12 @@ def get_all_users() -> GetUsersResponse:
 @app.post("/users")
 def create_user(user: User) -> CreateUserResponse:
     
-    # Aquí simularías guardar los datos en una base de datos.
     users.append(user)
 
-    # Por ahora, simplemente devolvemos un mensaje de éxito con los datos recibidos.
-    return {
-        "message": "Usuario created successfully"
-    }
+    return CreateUserResponse(
+        message="User created successfully",
+        user= user
+    )
 
 @app.delete("/users/{id}")
 def delete_user(id: int) -> DeleteUserResponse:
