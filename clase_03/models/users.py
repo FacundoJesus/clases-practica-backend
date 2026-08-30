@@ -23,6 +23,7 @@ class User(BaseModel):
         return v
 
 
+# Responses
 class GetUsersResponse(BaseModel):
     users: List[User]
 
