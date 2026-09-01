@@ -146,13 +146,3 @@ def update_user(id: int, user:User) -> UpdateUserResponse:
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f"User with ID {id} not found"
     )
-
-
-
-
-
-
-
-
-
-
