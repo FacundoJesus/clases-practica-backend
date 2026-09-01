@@ -1,5 +1,5 @@
 # Instalar antes en terminal: pip install pydantic
-# Instalar antes : pip install 'pydantic[email]'
+# Instalar antes : pip install 'pydantic[email] para EmailStr'
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import List
 
@@ -21,6 +21,7 @@ class User(BaseModel):
             raise ValueError('The CUIL must have 11 digitis')
         # Siempre debes retornar el valor si pasa la validación
         return v
+
 
 
 # Responses
