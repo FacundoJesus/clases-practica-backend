@@ -1,4 +1,5 @@
 from sqlmodel import Field, SQLModel, create_engine
+from fastapi import FastAPI
 
 # Se define el modelo
 class User(SQLModel, table=True):
@@ -13,3 +14,10 @@ engine = create_engine(sqlite_url, connect_args=connect_args)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
+
+app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
