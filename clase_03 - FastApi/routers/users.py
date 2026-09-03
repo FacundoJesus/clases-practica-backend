@@ -1,8 +1,8 @@
 # Para correr la FastApi: python -m uvicorn api:app --reload
-from fastapi import FastAPI, status, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from models.users import User, GetUsersResponse, CreateUserResponse, DeleteUserResponse, UpdateUserResponse
 
-app = FastAPI()
+router = APIRouter()
 
 # Array de usuarios
 users = []
@@ -40,7 +40,7 @@ users.append(user3)
 
 
 # Obtener todos los usuarios
-@app.get("/users")
+@router.get("/users")
 def get_all_users() -> GetUsersResponse:
     
     if not users:
@@ -53,7 +53,7 @@ def get_all_users() -> GetUsersResponse:
 
 
 # Obtener Usuarios Activos
-@app.get("/users/active")
+@router.get("/users/active")
 def get_active_users() -> GetUsersResponse:
 
     activeUsers = []
@@ -72,7 +72,7 @@ def get_active_users() -> GetUsersResponse:
 
 
 # Obtener Usuarios Inactivos
-@app.get("/users/inactive")
+@router.get("/users/inactive")
 def get_inactive_users() -> GetUsersResponse:
 
     inactiveUsers = []
@@ -91,7 +91,7 @@ def get_inactive_users() -> GetUsersResponse:
 
 
 # Crear usuario
-@app.post("/users")
+@router.post("/users")
 def create_user(user: User) -> CreateUserResponse:
 
     for existUser in users:
@@ -110,7 +110,7 @@ def create_user(user: User) -> CreateUserResponse:
 
 
 # Eliminar Usuario
-@app.delete("/users/{id}")
+@router.delete("/users/{id}")
 def delete_user(id: int) -> DeleteUserResponse:
     # El id deberia ser un request
     for user in users:
@@ -125,7 +125,7 @@ def delete_user(id: int) -> DeleteUserResponse:
 
 
 # Actualizar Usuario existente
-@app.put("/users/{id}")
+@router.put("/users/{id}")
 def update_user(id: int, user:User) -> UpdateUserResponse:
 
     for index, existing_user in enumerate(users):

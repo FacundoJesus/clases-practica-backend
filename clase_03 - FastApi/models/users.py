@@ -5,22 +5,23 @@ from typing import List
 
 class User(BaseModel):
     id: int
-    firstName: str
-    email: EmailStr
-    lastName: str = Field(min_length=4)
-    age: int = Field(gt=18, lt=30)  
-    cuil: int
-    isActive: bool = True
+    name: str
+    #firstName: str
+    #email: EmailStr
+    #lastName: str = Field(min_length=4)
+    #age: int = Field(gt=18, lt=30)  
+    #cuil: int
+    is_active: bool = True
 
     # Usamos field_validator apuntando al campo 'cuil'
-    @field_validator('cuil')
-    @classmethod
-    def cuil_validator(cls, v: int):
+    #@field_validator('cuil')
+    #@classmethod
+    # def cuil_validator(cls, v: int):
         # Convertimos a string para contar los dígitos fácilmente
-        if len(str(v)) != 11:
-            raise ValueError('The CUIL must have 11 digitis')
+     #   if len(str(v)) != 11:
+      #      raise ValueError('The CUIL must have 11 digitis')
         # Siempre debes retornar el valor si pasa la validación
-        return v
+       # return v
 
 
 
