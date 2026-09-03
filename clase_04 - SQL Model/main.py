@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel, create_engine
+from sqlmodel import Field, SQLModel, Session, create_engine
 from fastapi import FastAPI
 
 # Se define el modelo
@@ -21,3 +21,11 @@ app = FastAPI()
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+
+@app.post("/user")
+def create_user(user: User):
+    with Session(engine) as session:
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user
