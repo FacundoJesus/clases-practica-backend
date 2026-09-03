@@ -1,4 +1,4 @@
-# Para correr la FastApi: python -m uvicorn api:app --reload
+# Para correr la FastApi: python -m uvicorn main:app --reload
 from fastapi import APIRouter, HTTPException, status
 from models.users import User, GetUsersResponse, CreateUserResponse, DeleteUserResponse, UpdateUserResponse
 
@@ -6,7 +6,7 @@ router = APIRouter()
 
 # Array de usuarios
 users = []
-
+"""
 user1 = User(
     id=1,
     firstName="Juan",
@@ -37,7 +37,7 @@ user3 = User(
 users.append(user1)
 users.append(user2)
 users.append(user3)
-
+"""
 
 # Obtener todos los usuarios
 @router.get("/users")
@@ -112,7 +112,7 @@ def create_user(user: User) -> CreateUserResponse:
 # Eliminar Usuario
 @router.delete("/users/{id}")
 def delete_user(id: int) -> DeleteUserResponse:
-    # El id deberia ser un request
+    
     for user in users:
         if user.id == id:
             users.remove(user)
