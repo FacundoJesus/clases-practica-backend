@@ -157,3 +157,10 @@ def search_user(name: str, session: SessionDep) -> Sequence[User]:
     statement = select(User).where(User.name.contains(name))
     result = session.exec(statement)
     return result.all()
+
+@app.get("/user_mayores")
+def search_mayores(session: SessionDep) -> Sequence[User]:
+    # Compara directamente la columna age usando el operador >
+    statement = select(User).where(User.age > 18)
+    result = session.exec(statement)
+    return result.all()
