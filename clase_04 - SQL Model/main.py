@@ -2,76 +2,158 @@
 # python -m uvicorn main:app --reload 
 # (Asumiendo que el archivo se llama main.py)
 
-from typing import Annotated, List
-from fastapi import Depends, FastAPI, Query
+from typing import Annotated, Sequence
+# Herramientas de FastAPI para la API, dependencias, errores y parámetros web
+from fastapi import Depends, FastAPI, HTTPException, Query
+# Herramientas de SQLModel para crear modelos, conectar y consultar la base de datos
 from sqlmodel import Field, SQLModel, Session, create_engine, select
 
-# 1. DEFINICIÓN DEL MODELO
-# SQLModel combina Pydantic (validación de datos para la API) y SQLAlchemy (tablas de BD).
-# table=True indica que esta clase creará una tabla real en la base de datos.
+
+# ==========================================
+# 1. DEFINICIÓN DEL MODELO DE DATOS
+# ==========================================
+
+# SQLModel, al tener table=True, actúa como un modelo de datos (Pydantic) 
+# y como una tabla real en la base de datos (SQLAlchemy).
 class User(SQLModel, table=True):
-    # primary_key=True lo define como identificador único. default=None permite que la BD autogenere el ID.
+    # primary_key=True indica que este es el identificador único. 
+    # Es None por defecto porque la base de datos lo asigna automáticamente al crearlo.
     id: int | None = Field(default=None, primary_key=True)
-    # index=True agiliza las búsquedas por nombre en la base de datos.
+    # index=True agiliza las búsquedas cuando consultemos por el nombre.
     name: str = Field(index=True)
+    age: int
 
 
+# ==========================================
 # 2. CONFIGURACIÓN DE LA BASE DE DATOS
-sqlite_file_name = "database.db" # Nombre del archivo local que se creará.
-sqlite_url = f"sqlite:///{sqlite_file_name}" # URL de conexión.
+# ==========================================
 
-# check_same_thread=False es necesario en SQLite cuando se usa con frameworks asíncronos como FastAPI.
+sqlite_file_name = "database.db"
+# Cadena de conexión típica para SQLite
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+# check_same_thread=False es necesario en SQLite con FastAPI para evitar 
+# errores cuando múltiples peticiones web ocurren al mismo tiempo.
 connect_args = {"check_same_thread": False}
-# El 'engine' es el motor que gestiona la comunicación entre tu código y SQLite.
+# El 'engine' es el motor que gestiona la comunicación real con el archivo de la base de datos.
 engine = create_engine(sqlite_url, connect_args=connect_args)
 
 
-# 3. FUNCIONES DE BASE DE DATOS
+# ==========================================
+# 3. FUNCIONES DE INICIALIZACIÓN (SETUP)
+# ==========================================
+
 def create_db_and_tables():
-    # Lee todas las clases que heredan de SQLModel (como User) y crea las tablas si no existen.
+    # Lee todas las clases que hereden de SQLModel con table=True 
+    # y crea las tablas físicas en el archivo SQLite.
     SQLModel.metadata.create_all(engine)
 
+
+def create_dummy_users():
+    # Abre una conexión temporal para insertar datos
+    with Session(engine) as session:
+        # Si ya existe al menos un usuario en la tabla, detenemos la función (ya hay datos)
+        if session.exec(select(User)).first():
+            return
+        
+        # Datos de prueba
+        names_and_ages = [
+            ("Martina Gómez", 28),
+            ("Santiago Fernández", 34),
+            ("Valentina López", 22),
+            ("Mateo Rodríguez", 45),
+            ("Camila Martínez", 19),
+            ("Lucas Pérez", 31),
+            ("Sofía García", 27),
+            ("Nicolás Sánchez", 40),
+            ("Julieta Díaz", 24),
+            ("Tomás Romero", 37),
+        ]
+        
+        # Convertimos las tuplas en objetos del modelo User
+        users = [
+            User(name=name, age=age) for name, age in names_and_ages
+        ]
+        
+        # session.add_all() prepara múltiples registros para ser insertados
+        session.add_all(users)
+        # session.commit() es lo que realmente impacta (guarda) los cambios en la base de datos
+        session.commit()
+
+
+# ==========================================
+# 4. INYECCIÓN DE DEPENDENCIAS
+# ==========================================
+
 def get_session():
-    # Crea una sesión con la BD. 'yield' pausa la función, entrega la sesión al endpoint, 
-    # y la cierra automáticamente cuando el endpoint termina.
+    # Crea una sesión por cada petición web. 
+    # yield entrega la sesión a la ruta, y al terminar la ruta, cierra la conexión (gracias al 'with').
     with Session(engine) as session:
         yield session
 
-# SessionDep es un alias. FastAPI inyectará la sesión automáticamente (Dependency Injection)
-# cada vez que un endpoint pida este tipo de dato.
+# Creamos un alias. Cada vez que pongamos 'SessionDep' en una ruta, 
+# FastAPI ejecutará get_session() automáticamente.
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
-# 4. INICIALIZACIÓN DE LA APLICACIÓN
+# ==========================================
+# 5. CREACIÓN DE LA APLICACIÓN FASTAPI
+# ==========================================
+
 app = FastAPI()
 
-# Este evento se dispara justo antes de que el servidor empiece a recibir peticiones.
+# Este evento se ejecuta una sola vez, justo antes de que la API comience a aceptar peticiones.
 @app.on_event("startup")
 def on_startup():
-    create_db_and_tables() # Nos aseguramos de que la BD y tablas existan al arrancar.
+    create_db_and_tables() # Crea el archivo y las tablas
+    create_dummy_users()   # Si está vacío, le inyecta los 10 usuarios de prueba
 
 
-# 5. RUTAS (ENDPOINTS)
-# POST: Usado para crear o enviar datos nuevos.
+# ==========================================
+# 6. ENDPOINTS (RUTAS DE LA API)
+# ==========================================
+
+# RUTA POST: Para crear un nuevo usuario
 @app.post("/user")
 def create_user(user: User, session: SessionDep) -> User:
-    # Agrega el usuario a la sesión (aún no se guarda en disco).
+    # Agrega el usuario (recibido en formato JSON y validado) a la sesión
     session.add(user)
-    # Ejecuta los cambios en la base de datos (lo guarda permanentemente).
+    # Guarda los cambios en la base de datos
     session.commit()
-    # Actualiza el objeto 'user' con los datos generados por la BD (ej. el 'id' autogenerado).
+    # Refresca el objeto 'user' en Python para obtener el 'id' que la base de datos le acaba de asignar
     session.refresh(user)
     return user
 
-# GET: Usado para consultar o leer datos.
+
+# RUTA GET: Para listar usuarios (con paginación)
 @app.get("/user")
 def get_user(
     session: SessionDep,
-    offset: int = 0, # Para paginación: cuántos registros saltarse.
-    # le=100 (less or equal) limita la consulta a 100 resultados máximo por seguridad.
-    limit: Annotated[int, Query(le=100)] = 100,
-) -> List[User]:
-    # select(User) arma la consulta. offset y limit aplican la paginación. 
-    # session.exec() la ejecuta y .all() trae todos los resultados en una lista.
+    offset: int = 0, # ¿Cuántos registros nos saltamos? (Por defecto 0)
+    # 'limit' indica cuántos devolver. Validamos con Query(le=100) que el máximo sea 100.
+    limit: Annotated[int, Query(le=100)] = 100, 
+) -> Sequence[User]:
+    
+    # Construye la consulta SQL con los límites de paginación y la ejecuta (.all() trae todos los resultados)
     users = session.exec(select(User).offset(offset).limit(limit)).all()
     return users
+
+
+# RUTA GET: Para buscar un usuario específico por su ID
+@app.get("/user/{user_id}")
+def get_user_by_id(user_id: int, session: SessionDep) -> User:
+    # session.get() es una forma optimizada de buscar un registro por su Primary Key (ID)
+    user = session.get(User, user_id)
+    
+    # Si el usuario no existe (es None), lanzamos un error 404
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    return user
+
+@app.get("/user/search/{name}")
+def search_user(name: str, session: SessionDep) -> Sequence[User]:
+    # .contains() ignora si le falta el apellido y permite búsquedas parciales
+    statement = select(User).where(User.name.contains(name))
+    result = session.exec(statement)
+    return result.all()
