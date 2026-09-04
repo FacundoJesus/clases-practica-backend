@@ -13,6 +13,10 @@ from sqlmodel import Field, SQLModel, Session, create_engine, select
 # 1. DEFINICIÓN DEL MODELO DE DATOS
 # ==========================================
 
+class Country(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+
 # SQLModel, al tener table=True, actúa como un modelo de datos (Pydantic) 
 # y como una tabla real en la base de datos (SQLAlchemy).
 class User(SQLModel, table=True):
@@ -22,6 +26,7 @@ class User(SQLModel, table=True):
     # index=True agiliza las búsquedas cuando consultemos por el nombre.
     name: str = Field(index=True)
     age: int
+    country_id: int | None = Field(default=None, foreign_key="country.id")
 
 
 # ==========================================
@@ -49,7 +54,7 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
-def create_dummy_users():
+def create_dummy_data():
     # Abre una conexión temporal para insertar datos
     with Session(engine) as session:
         # Si ya existe al menos un usuario en la tabla, detenemos la función (ya hay datos)
@@ -57,28 +62,37 @@ def create_dummy_users():
             return
         
         # Datos de prueba
-        names_and_ages = [
-            ("Martina Gómez", 28),
-            ("Santiago Fernández", 34),
-            ("Valentina López", 22),
-            ("Mateo Rodríguez", 45),
-            ("Camila Martínez", 19),
-            ("Lucas Pérez", 31),
-            ("Sofía García", 27),
-            ("Nicolás Sánchez", 40),
-            ("Julieta Díaz", 24),
-            ("Tomás Romero", 37),
+        names_ages_countries = [
+            ("Martina Gómez", 28,1),
+            ("Santiago Fernández", 34,2),
+            ("Valentina López", 22,1),
+            ("Mateo Rodríguez", 45,2),
+            ("Camila Martínez", 19,2),
+            ("Lucas Pérez", 31,1),
+            ("Sofía García", 27,1),
+            ("Nicolás Sánchez", 40,1),
+            ("Julieta Díaz", 24,2),
+            ("Tomás Romero", 37,1),
         ]
+
         
         # Convertimos las tuplas en objetos del modelo User
         users = [
-            User(name=name, age=age) for name, age in names_and_ages
+            User(name=name, age=age, country_id=country) for name, age, country in names_ages_countries
         ]
-        
-        # session.add_all() prepara múltiples registros para ser insertados
         session.add_all(users)
-        # session.commit() es lo que realmente impacta (guarda) los cambios en la base de datos
         session.commit()
+
+        countries = [
+            ("Argentina",1),
+            ("Brasil",2)
+        ]
+        countries = [Country(name=name,id=id) for name, id in countries]
+        # session.add_all() prepara múltiples registros para ser insertados
+        session.add_all(countries)
+        session.commit()
+        # session.commit() es lo que realmente impacta (guarda) los cambios en la base de datos
+        
 
 
 # ==========================================
@@ -106,7 +120,7 @@ app = FastAPI()
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables() # Crea el archivo y las tablas
-    create_dummy_users()   # Si está vacío, le inyecta los 10 usuarios de prueba
+    create_dummy_data()   # Si está vacío, le inyecta los 10 usuarios de prueba
 
 
 # ==========================================
