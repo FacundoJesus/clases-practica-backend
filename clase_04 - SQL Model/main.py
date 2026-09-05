@@ -1,7 +1,7 @@
 # Comando para ejecutar el servidor: python -m uvicorn main:app --reload (Asumiendo que el archivo se llama main.py)
 from typing import Annotated, Sequence
 # Herramientas de FastAPI para la API, dependencias, errores y parámetros web
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, status
 # Herramientas de SQLModel para crear modelos, conectar y consultar la base de datos
 from sqlmodel import Field, SQLModel, Session, create_engine, select
 
@@ -24,7 +24,11 @@ class User(SQLModel, table=True):
     age: int
     country_id: int | None = Field(default=None, foreign_key="country.id")
 
-
+# Este modelo se usa EXCLUSIVAMENTE para recibir datos en el PUT/PATCH
+class UserUpdate(SQLModel):
+    name: str | None = None
+    age: int | None = None
+    country_id: int | None = None
 # ==========================================
 # 2. CONFIGURACIÓN DE LA BASE DE DATOS
 # ==========================================
@@ -71,7 +75,6 @@ def create_dummy_data():
             ("Tomás Romero", 37,1),
         ]
 
-        
         # Convertimos las tuplas en objetos del modelo User
         users = [User(name=name, age=age, country_id=country) for name, age, country in names_ages_countries]
         session.add_all(users)
@@ -172,6 +175,44 @@ def search_mayores(session: SessionDep) -> Sequence[User]:
     statement = select(User).where(User.age > 18)
     result = session.exec(statement)
     return result.all()
+
+@app.delete("/user/{id}", status_code=status.HTTP_200_OK)
+def delete_user_by_id(id:int, session:SessionDep) -> User:
+    user = session.get(User, id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not exists")
+
+    session.delete(user)
+    session.commit()
+    return user
+
+@app.put("/user/{id}", status_code=status.HTTP_200_OK)
+def update_user(id: int, user_data: UserUpdate, session: SessionDep) -> User:
+    # 1. Buscamos el usuario original en la base de datos
+    user_db = session.get(User, id)
+
+    if not user_db:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # 2. Extraemos SOLO los campos que el cliente envió en la petición
+    update_dict = user_data.model_dump(exclude_unset=True)
+
+    # 3. Actualizamos los atributos del registro de la base de datos
+    for key, value in update_dict.items():
+        setattr(user_db, key, value)
+
+    # 4. Guardamos los cambios
+    session.add(user_db)
+    session.commit()
+    session.refresh(user_db)
+    
+    return user_db
+
+    
+
+  
+    
 
 
 
