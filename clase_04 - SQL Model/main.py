@@ -82,7 +82,7 @@ def create_dummy_data():
             (2,"Brasil"),
             (3,"Chile")
         ]
-        countries = [Country(name=name,id=id) for name, id in countries]
+        countries = [Country(id=id,name=name) for id,name in countries]
         session.add_all(countries) # session.add_all() prepara múltiples registros para ser insertados
         session.commit() # session.commit() es lo que realmente impacta (guarda) los cambios en la base de datos
         
