@@ -64,34 +64,32 @@ def create_dummy_data():
         # Datos de prueba
         names_ages_countries = [
             ("Martina Gómez", 28,1),
-            ("Santiago Fernández", 34,2),
+            ("Santiago Fernández", 34,3),
             ("Valentina López", 22,1),
             ("Mateo Rodríguez", 45,2),
             ("Camila Martínez", 19,2),
-            ("Lucas Pérez", 31,1),
+            ("Lucas Pérez", 31,3),
             ("Sofía García", 27,1),
-            ("Nicolás Sánchez", 40,1),
+            ("Nicolás Sánchez", 40,3),
             ("Julieta Díaz", 24,2),
             ("Tomás Romero", 37,1),
         ]
 
         
         # Convertimos las tuplas en objetos del modelo User
-        users = [
-            User(name=name, age=age, country_id=country) for name, age, country in names_ages_countries
-        ]
+        users = [User(name=name, age=age, country_id=country) for name, age, country in names_ages_countries]
         session.add_all(users)
         session.commit()
 
         countries = [
-            ("Argentina",1),
-            ("Brasil",2)
+            (1,"Argentina"),
+            (2,"Brasil"),
+            (3,"Chile")
         ]
         countries = [Country(name=name,id=id) for name, id in countries]
-        # session.add_all() prepara múltiples registros para ser insertados
-        session.add_all(countries)
-        session.commit()
-        # session.commit() es lo que realmente impacta (guarda) los cambios en la base de datos
+        session.add_all(countries) # session.add_all() prepara múltiples registros para ser insertados
+        session.commit() # session.commit() es lo que realmente impacta (guarda) los cambios en la base de datos
+        
         
 
 
