@@ -1,13 +1,9 @@
-# Comando para ejecutar el servidor:
-# python -m uvicorn main:app --reload 
-# (Asumiendo que el archivo se llama main.py)
-
+# Comando para ejecutar el servidor: python -m uvicorn main:app --reload (Asumiendo que el archivo se llama main.py)
 from typing import Annotated, Sequence
 # Herramientas de FastAPI para la API, dependencias, errores y parámetros web
 from fastapi import Depends, FastAPI, HTTPException, Query
 # Herramientas de SQLModel para crear modelos, conectar y consultar la base de datos
 from sqlmodel import Field, SQLModel, Session, create_engine, select
-
 
 # ==========================================
 # 1. DEFINICIÓN DEL MODELO DE DATOS
@@ -176,3 +172,6 @@ def search_mayores(session: SessionDep) -> Sequence[User]:
     statement = select(User).where(User.age > 18)
     result = session.exec(statement)
     return result.all()
+
+
+
