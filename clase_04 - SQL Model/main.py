@@ -29,6 +29,11 @@ class UserUpdate(SQLModel):
     name: str | None = None
     age: int | None = None
     country_id: int | None = None
+
+class UserCreate(SQLModel):
+    name: str | None = None
+    age: int | None = None
+    country_id: int | None = None
 # ==========================================
 # 2. CONFIGURACIÓN DE LA BASE DE DATOS
 # ==========================================
@@ -126,7 +131,8 @@ def on_startup():
 
 # RUTA POST: Para crear un nuevo usuario
 @app.post("/user")
-def create_user(user: User, session: SessionDep) -> User:
+def create_user(user_data: UserCreate, session: SessionDep) -> User:
+    user = User.model_validate(user_data) # Convierte UserCreate a User
     # Agrega el usuario (recibido en formato JSON y validado) a la sesión
     session.add(user)
     # Guarda los cambios en la base de datos
