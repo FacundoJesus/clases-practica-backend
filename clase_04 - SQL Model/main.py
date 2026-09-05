@@ -31,8 +31,8 @@ class UserUpdate(SQLModel):
     country_id: int | None = None
 
 class UserCreate(SQLModel):
-    name: str | None = None
-    age: int | None = None
+    name: str 
+    age: int 
     country_id: int | None = None
 # ==========================================
 # 2. CONFIGURACIÓN DE LA BASE DE DATOS
