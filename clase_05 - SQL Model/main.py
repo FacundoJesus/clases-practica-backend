@@ -112,7 +112,6 @@ def create_user(user: UserCreate, session: SessionDep) -> User:
     session.refresh(db_user)
     return db_user
 
-
 @app.get("/user", response_model=Sequence[UserPublicWithCountry])
 def get_user(
     session: SessionDep,
@@ -123,7 +122,6 @@ def get_user(
     result = session.exec(statement)
     return result.all()
 
-
 @app.get("/user/{user_id}", response_model=UserPublicWithCountry)
 def get_user_by_id(user_id: int, session: SessionDep) -> User:
     user = session.get(User, user_id)
@@ -131,16 +129,28 @@ def get_user_by_id(user_id: int, session: SessionDep) -> User:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-
 @app.get("/user/search/{name}", response_model=Sequence[UserPublicWithCountry])
 def search_user(name: str, session: SessionDep) -> Sequence[User]:
     statement = select(User).where(col(User.name).like(f"%{name}%"))
     result = session.exec(statement)
     return result.all()
 
-
 @app.get("/user_mayores", response_model=Sequence[UserPublicWithCountry])
 def search_mayores(session: SessionDep) -> Sequence[User]:
     statement = select(User).where(User.age >= 18)
     result = session.exec(statement)
     return result.all()
+
+@app.delete("/user/{user_id}", response_model=UserPublic)
+def delete_user(user_id:int, session: SessionDep) -> UserPublic:
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not exist")
+
+    # Congelamos los datos en el DTO antes de borrarlo de la base de datos
+    user_deleted = UserPublic.model_validate(user)
+
+    session.delete(user)
+    session.commit()
+
+    return user_deleted
