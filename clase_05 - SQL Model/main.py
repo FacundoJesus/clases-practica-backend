@@ -1,5 +1,5 @@
+# Importaciones
 from typing import Annotated, Sequence
-
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import (
     Field,
@@ -11,43 +11,34 @@ from sqlmodel import (
     select,
 )
 
-# Se define el modelo
-
-
+# Modelos
 class CountryBase(SQLModel):
     name: str = Field(index=True)
-
-
-class Country(CountryBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    users: list["User"] = Relationship(back_populates="country")
-
-
-class CountryPublic(CountryBase):
-    id: int
-
-
 class UserBase(SQLModel):
     name: str = Field(index=True)
     age: int
     country_id: int | None = Field(default=None, foreign_key="country.id")
 
 
+# Tablas BBDD
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     country: Country | None = Relationship(back_populates="users")
+class Country(CountryBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    users: list["User"] = Relationship(back_populates="country")
 
 
+# Esquema de respuestas
+class CountryPublic(CountryBase):
+    id: int
 class UserPublic(UserBase):
     id: int
-
-
 class UserPublicWithCountry(UserPublic):
     country: CountryPublic | None = None
 
 
-# Code above omitted 👆
-
+# Configuración de la Base de Datos
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
@@ -55,9 +46,9 @@ connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 
 
+# Inicialización y Datos de Prueba
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
-
 
 def create_dummy_data():
     with Session(engine) as session:
@@ -86,21 +77,20 @@ def create_dummy_data():
         session.commit()
 
 
+# Inyección de Dependencias
 def get_session():
     with Session(engine) as session:
         yield session
-
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
 app = FastAPI()
 
-
+# Configuración de la App y Evento de Inicio
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
     create_dummy_data()
-
 
 @app.post("/user")
 def create_user(user: User, session: SessionDep) -> User:
@@ -110,6 +100,7 @@ def create_user(user: User, session: SessionDep) -> User:
     return user
 
 
+# Rutas (Endpoints) de la API
 @app.get("/user", response_model=Sequence[UserPublicWithCountry])
 def get_user(
     session: SessionDep,
