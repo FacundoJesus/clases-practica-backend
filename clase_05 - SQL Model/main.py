@@ -1,5 +1,5 @@
 # Importaciones
-from typing import Annotated, Sequence
+from typing import Annotated, Optional, Sequence
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import (
     Field,
@@ -11,29 +11,39 @@ from sqlmodel import (
     select,
 )
 
-# Modelos
+# Modelos Base (Esquemas comunes)
 class CountryBase(SQLModel):
     name: str = Field(index=True)
+
 class UserBase(SQLModel):
     name: str = Field(index=True)
     age: int
     country_id: int | None = Field(default=None, foreign_key="country.id")
 
 
-# Tablas BBDD
-class User(UserBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    country: Country | None = Relationship(back_populates="users")
+# Tablas BBDD (Entidades)
+# Definimos Country primero para que User pueda referenciarla sin problemas
 class Country(CountryBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     users: list["User"] = Relationship(back_populates="country")
 
+class User(UserBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    country: Optional[Country] = Relationship(back_populates="users")
 
-# Esquema de respuestas
+
+# DTOs de Entrada (Creación)
+class UserCreate(UserBase):
+    pass
+
+
+# DTOs de Salida (Respuestas públicas)
 class CountryPublic(CountryBase):
     id: int
+
 class UserPublic(UserBase):
     id: int
+
 class UserPublicWithCountry(UserPublic):
     country: CountryPublic | None = None
 
@@ -92,15 +102,17 @@ def on_startup():
     create_db_and_tables()
     create_dummy_data()
 
-@app.post("/user")
-def create_user(user: User, session: SessionDep) -> User:
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
-
 
 # Rutas (Endpoints) de la API
+@app.post("/user", response_model=UserPublic)
+def create_user(user: UserCreate, session: SessionDep) -> User:
+    db_user = User.model_validate(user)
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
+
+
 @app.get("/user", response_model=Sequence[UserPublicWithCountry])
 def get_user(
     session: SessionDep,
@@ -109,8 +121,7 @@ def get_user(
 ) -> Sequence[User]:
     statement = select(User).offset(offset).limit(limit)
     result = session.exec(statement)
-    users = result.all()
-    return users
+    return result.all()
 
 
 @app.get("/user/{user_id}", response_model=UserPublicWithCountry)
@@ -121,16 +132,15 @@ def get_user_by_id(user_id: int, session: SessionDep) -> User:
     return user
 
 
-@app.get("/user/search/{name}")
+@app.get("/user/search/{name}", response_model=Sequence[UserPublicWithCountry])
 def search_user(name: str, session: SessionDep) -> Sequence[User]:
-    statement = select(User).where(col(User.name).like("%{}%".format(name)))
+    statement = select(User).where(col(User.name).like(f"%{name}%"))
     result = session.exec(statement)
     return result.all()
 
 
-@app.get("/user_mayores")
+@app.get("/user_mayores", response_model=Sequence[UserPublicWithCountry])
 def search_mayores(session: SessionDep) -> Sequence[User]:
-    # TODO: users.age >= 18
     statement = select(User).where(User.age >= 18)
     result = session.exec(statement)
     return result.all()
