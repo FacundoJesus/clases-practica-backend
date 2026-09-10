@@ -153,7 +153,27 @@ def delete_user(user_id:int, session: SessionDep) -> UserPublic:
     session.commit()
     return user_deleted
 
-@app.put("/user/{user_id}",response_model=UserPublic)
-def update_user(user_id:int,user:UserCreate,session: SessionDep) -> User:
+@app.put("/user/{user_id}", response_model=UserPublic)
+def update_user(user_id: int, user: UserCreate, session: SessionDep) -> User:
+    db_user = session.get(User, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Validación de integridad referencial si se envía un country_id
+    if user.country_id is not None:
+        country = session.get(Country, user.country_id)
+        if not country:
+            raise HTTPException(status_code=400, detail="Country not found")
+
+    # Extraemos todos los campos del schema de entrada
+    user_data = user.model_dump()
+    
+    # Sobrescribimos los atributos del objeto de la base de datos
+    db_user.sqlmodel_update(user_data)
+
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
 
     
