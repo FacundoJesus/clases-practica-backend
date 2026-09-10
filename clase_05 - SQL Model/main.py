@@ -149,8 +149,11 @@ def delete_user(user_id:int, session: SessionDep) -> UserPublic:
 
     # Congelamos los datos en el DTO antes de borrarlo de la base de datos
     user_deleted = UserPublic.model_validate(user)
-
     session.delete(user)
     session.commit()
-
     return user_deleted
+
+@app.put("/user/{user_id}",response_model=UserPublic)
+def update_user(user_id:int,user:UserCreate,session: SessionDep) -> User:
+
+    
