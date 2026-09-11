@@ -1,19 +1,15 @@
-from api import users
-from api.payload.users import User
+from api.controllers import UserController as user_controller
 from fastapi import FastAPI
-from models.user import Country
-from repositories import database
-from repositories.database import create_db_and_tables
-from sqlmodel import (
-    Session,
-    select,
-)
+from models.user import Country, User  # User y Country vienen del módulo de modelos
+from repositories.database import create_db_and_tables, engine
+from sqlmodel import Session, select
 
 app = FastAPI()
-app.include_router(users.router)
+app.include_router(user_controller.router)
+
 
 def create_dummy_data():
-    with Session(database.engine) as session:
+    with Session(engine) as session:
         if session.exec(select(User)).first():
             return
         country_names = [("Argentina", 1), ("Brasil", 2)]
@@ -34,12 +30,15 @@ def create_dummy_data():
             ("Julieta Díaz", 24, 2),
             ("Tomás Romero", 37, 2),
         ]
-        users = [User(name=name, age=age, country_id=country) for name, age, country in names_and_ages]
+        users = [
+            User(name=name, age=age, country_id=country)
+            for name, age, country in names_and_ages
+        ]
         session.add_all(users)
         session.commit()
-        
+
+
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
     create_dummy_data()
-

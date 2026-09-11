@@ -1,9 +1,8 @@
-# Se define el modelo
 
-# Nivel de negocios
 from sqlmodel import Field, Relationship, SQLModel
 
 
+# Nivel de negocio
 class CountryBase(SQLModel):
     name: str = Field(index=True)
 
