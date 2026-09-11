@@ -1,5 +1,6 @@
 # Importaciones
 from typing import Annotated, Optional, Sequence
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import (
     Field,
@@ -11,7 +12,8 @@ from sqlmodel import (
     select,
 )
 
-# Modelos Base (Esquemas comunes)
+
+# Modelos Base (Esquemas comunes) - Nivel de negocios
 class CountryBase(SQLModel):
     name: str = Field(index=True)
 
