@@ -1,11 +1,16 @@
-from typing import Annotated, Sequence
+from collections.abc import Sequence
+from typing import Annotated
 
+from api.payload.users import (
+    CreateUserRequest,
+    CreateUserResponse,
+    GetUserResponseWithCountry,
+    GetUsersResponse,
+)
 from fastapi import APIRouter, HTTPException, Query
+from models.user import User
+from repositories.database import SessionDep
 from sqlmodel import col, select
-
-from api.model.users import CreateUserRequest, CreateUserResponse, GetUserResponseWithCountry, GetUsersResponse
-from data.database import SessionDep
-from model.users import User
 
 router = APIRouter()
 
@@ -40,7 +45,7 @@ def get_user_by_id(user_id: int, session: SessionDep) -> User:
 
 @router.get("/user/search/{name}")
 def search_user(name: str, session: SessionDep) -> Sequence[User]:
-    statement = select(User).where(col(User.name).like("%{}%".format(name)))
+    statement = select(User).where(col(User.name).like(f"%{name}%"))
     result = session.exec(statement)
     return result.all()
 

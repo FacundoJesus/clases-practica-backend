@@ -1,10 +1,9 @@
-
 from api import users
-from api.users import User
-from data import database
-from data.database import create_db_and_tables
+from api.payload.users import User
 from fastapi import FastAPI
-from model.users import Country
+from models.user import Country
+from repositories import database
+from repositories.database import create_db_and_tables
 from sqlmodel import (
     Session,
     select,
