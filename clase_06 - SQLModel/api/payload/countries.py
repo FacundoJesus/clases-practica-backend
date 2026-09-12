@@ -1,4 +1,4 @@
-from models.User import CountryBase
+from models.users import CountryBase
 from sqlmodel import SQLModel
 
 

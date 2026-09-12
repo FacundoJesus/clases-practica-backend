@@ -4,7 +4,7 @@
 
 from api.payload.countries import CreateCountryRequest, CreateCountryResponse
 from fastapi import APIRouter, HTTPException, Query
-from models.Country import Country
+from models.users import Country
 from repositories.database import SessionDep
 from services import CountryService as countryService
 

@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 
 from api.payload.users import CreateUserRequest, UpdateUserRequest
-from models.user import User
+from models.users import User
 from sqlmodel import Session, col, select
 
 

@@ -1,6 +1,6 @@
 from api.controllers import UserController as user_controller
 from fastapi import FastAPI
-from models.user import Country, User  # User y Country vienen del módulo de modelos
+from models.users import Country, User  # User y Country vienen del módulo de modelos
 from repositories.database import create_db_and_tables, engine
 from sqlmodel import Session, select
 

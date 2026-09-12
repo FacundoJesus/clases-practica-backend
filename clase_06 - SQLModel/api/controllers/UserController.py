@@ -9,7 +9,7 @@ from api.payload.users import (
     UpdateUserRequest,
 )
 from fastapi import APIRouter, HTTPException, Query
-from models.User import User
+from models.users import User
 from repositories.database import SessionDep
 
 # Importamos el nuevo servicio

@@ -1,4 +1,4 @@
-from countries import CountryResponse
+from .countries import CountryResponse
 from sqlmodel import SQLModel
 
 
