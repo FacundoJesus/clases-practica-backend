@@ -6,22 +6,21 @@ from api.payload.users import (
     CreateUserResponse,
     GetUserResponseWithCountry,
     GetUsersResponse,
+    UpdateUserRequest,
 )
 from fastapi import APIRouter, HTTPException, Query
 from models.user import User
 from repositories.database import SessionDep
-from sqlmodel import col, select
+
+# Importamos el nuevo servicio
+from services import UserService as userService
 
 router = APIRouter()
 
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)
 def create_user(req: CreateUserRequest, session: SessionDep) -> User:
-    user = User(name=req.name, age=req.age, country_id=req.country_id)
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
+    return userService.createUser(session, req)
 
 # Obtener todos los usuarios
 @router.get("/user", response_model=Sequence[GetUsersResponse])
@@ -29,31 +28,40 @@ def get_users(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
-)-> Sequence[User]:
-    statement = select(User).offset(offset).limit(limit)
-    result = session.exec(statement)
-    users = result.all()
-    return users
+) -> Sequence[User]:
+    return userService.getUsers(session, offset, limit)
 
 # Buscar usuario por Id
 @router.get("/user/{user_id}", response_model=GetUserResponseWithCountry)
-def get_user_by_id(user_id: int, session: SessionDep) -> User:
-    user = session.get(User, user_id)
+def getUserById(user_id: int, session: SessionDep) -> User:
+    user = userService.getUserById(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 # Buscar usuario por Nombre
 @router.get("/user/search/{name}")
-def search_user(name: str, session: SessionDep) -> Sequence[User]:
-    statement = select(User).where(col(User.name).like(f"%{name}%"))
-    result = session.exec(statement)
-    return result.all()
+def getUserByName(name: str, session: SessionDep) -> Sequence[User]:
+    return userService.getUserByName(session, name)
 
 # Obtener usuarios mayores
 @router.get("/user_mayores")
-def search_mayores(session: SessionDep)-> Sequence[User]:
-    # TODO: users.age >= 18
-    statement = select(User).where(User.age >= 18)
-    result = session.exec(statement)
-    return result.all()
+def getAdultUsers(session: SessionDep) -> Sequence[User]:
+    return userService.getAdultUsers(session)
+
+# Eliminar usuario
+@router.delete("/user/{user_id}")
+def deleteUserById(user_id: int, session: SessionDep):
+    deleted = userService.deleteUserById(session, user_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": f"User {user_id} deleted successfully"}
+
+# Actualizar usuario
+@router.put("/user/{user_id}", response_model=GetUserResponseWithCountry)
+def updateUser(user_id: int, req: UpdateUserRequest, session: SessionDep) -> User:
+    user = userService.updateUser(session, user_id, req)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
