@@ -13,3 +13,11 @@ class CreateCountryRequest(CountryBase):
 class CreateCountryResponse(SQLModel):
     id: int
     name: str
+
+
+class GetCountriesResponse(SQLModel):
+    id: int
+    name: str
+
+class GetCountryByIdResponse(SQLModel):
+    name:str
