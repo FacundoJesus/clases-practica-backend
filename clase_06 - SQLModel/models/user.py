@@ -1,15 +1,6 @@
 
+from Country import Country
 from sqlmodel import Field, Relationship, SQLModel
-
-
-# Nivel de negocio
-class CountryBase(SQLModel):
-    name: str = Field(index=True)
-
-#Nivel de DB
-class Country(CountryBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    users: list["User"] = Relationship(back_populates="country")
 
 
 # Nivel de negocio 
@@ -23,3 +14,5 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     country: Country | None = Relationship(back_populates="users")
+
+

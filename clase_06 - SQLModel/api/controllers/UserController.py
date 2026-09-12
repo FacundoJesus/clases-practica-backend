@@ -4,12 +4,12 @@ from typing import Annotated
 from api.payload.users import (
     CreateUserRequest,
     CreateUserResponse,
-    GetUserResponseWithCountry,
     GetUsersResponse,
+    GetUserWithCountryResponse,
     UpdateUserRequest,
 )
 from fastapi import APIRouter, HTTPException, Query
-from models.user import User
+from models.User import User
 from repositories.database import SessionDep
 
 # Importamos el nuevo servicio
@@ -32,7 +32,7 @@ def get_users(
     return userService.getUsers(session, offset, limit)
 
 # Buscar usuario por Id
-@router.get("/user/{user_id}", response_model=GetUserResponseWithCountry)
+@router.get("/user/{user_id}", response_model=GetUserWithCountryResponse)
 def getUserById(user_id: int, session: SessionDep) -> User:
     user = userService.getUserById(session, user_id)
     if not user:
@@ -59,7 +59,7 @@ def deleteUserById(user_id: int, session: SessionDep):
     return {"message": f"User {user_id} deleted successfully"}
 
 # Actualizar usuario
-@router.put("/user/{user_id}", response_model=GetUserResponseWithCountry)
+@router.put("/user/{user_id}", response_model=GetUserWithCountryResponse)
 def updateUser(user_id: int, req: UpdateUserRequest, session: SessionDep) -> User:
     user = userService.updateUser(session, user_id, req)
     if not user:

@@ -1,8 +1,7 @@
-from models.user import CountryBase
+from countries import CountryResponse
 from sqlmodel import SQLModel
 
 
-#Nivel API
 class CreateUserRequest(SQLModel):
     name: str
     age: int
@@ -12,22 +11,18 @@ class CreateUserRequest(SQLModel):
 class CreateUserResponse(SQLModel):
     id: int
 
-class CountryResponse(CountryBase):
-    id: int
-
 class GetUsersResponse(SQLModel):
     id: int
     name: str
 
-
-class GetUserResponseWithCountry(GetUsersResponse):
+class GetUserWithCountryResponse(GetUsersResponse):
     age: int
     password: str | None
     country: CountryResponse | None = None
-
-
 
 class UpdateUserRequest(SQLModel):
     name: str | None = None
     age: int | None = None
     country_id: int | None = None
+
+
