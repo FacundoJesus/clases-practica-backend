@@ -1,4 +1,4 @@
-from api.payload.countries import CreateCountryRequest
+from api.payload.countriesDTO import CreateCountryRequest
 from models.users import Country
 from sqlmodel import Session
 from collections.abc import Sequence

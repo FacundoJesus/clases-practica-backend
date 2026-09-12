@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Annotated
 
-from api.payload.users import (
+from api.payload.usersDTO import (
     CreateUserRequest,
     CreateUserResponse,
     GetUsersResponse,

@@ -1,4 +1,4 @@
-from api.payload.countries import CreateCountryRequest, CreateCountryResponse, GetCountriesResponse, GetCountryByIdResponse
+from api.payload.countriesDTO import CreateCountryRequest, CreateCountryResponse, GetCountriesResponse, GetCountryByIdResponse
 from fastapi import APIRouter
 from models.users import Country
 from repositories.database import SessionDep
