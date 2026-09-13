@@ -1,4 +1,4 @@
-from api.payload.countriesDTO import CreateCountryRequest, CreateCountryResponse, GetCountriesResponse, GetCountryByIdResponse
+from api.payload.countriesDTO import CreateCountryRequest, CreateCountryResponse, GetCountriesResponse, GetCountryByIdResponse, UpdateCountryRequest
 from fastapi import APIRouter
 from models.users import Country
 from repositories.database import SessionDep
@@ -28,4 +28,27 @@ def getCountryById(country_id: int, session: SessionDep) -> Country:
     if not country:
         raise HTTPException(status_code=404, detail="Country does not exist")
         
+    return country
+
+
+# Buscar país por nombre
+@router.get("/country/search/{name}")
+def getCountryByName(name: str, session: SessionDep) -> Sequence[Country]:
+    return countryService.getCountryByName(session, name)
+
+# Eliminar país
+@router.delete("/country/{country_id}")
+def deleteCountryById(country_id: int, session: SessionDep):
+    deleted = countryService.deleteCountryById(session, country_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Country not found")
+    
+    return {"message": f"Country {country_id} deleted successfully"}
+
+# Actualizar país
+@router.put("/country/{country_id}", response_model=GetCountryByIdResponse)
+def updateCountry(country_id: int, req: UpdateCountryRequest, session: SessionDep) -> Country:
+    country = countryService.updateCountry(session, country_id, req)
+    if not country:
+        raise HTTPException(status_code=404, detail="Country not found")
     return country

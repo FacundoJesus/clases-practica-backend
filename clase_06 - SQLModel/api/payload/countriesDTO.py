@@ -21,3 +21,6 @@ class GetCountriesResponse(SQLModel):
 
 class GetCountryByIdResponse(SQLModel):
     name:str
+
+class UpdateCountryRequest(SQLModel):
+    name: str | None = None
