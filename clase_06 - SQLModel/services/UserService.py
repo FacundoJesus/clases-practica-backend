@@ -12,6 +12,18 @@ def createUser(session: Session, req: CreateUserRequest) -> User:
     session.refresh(user)
     return user
 
+def removeUserCountry(session: Session, user_id: int) -> User | None:
+    """Remueve el país asociado a un usuario por su ID."""
+    user = session.get(User, user_id)
+    if not user:
+        return None
+    
+    user.country_id = None
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
 def getUsers(session: Session, offset: int, limit: int) -> Sequence[User]:
     statement = select(User).offset(offset).limit(limit)
     return session.exec(statement).all()

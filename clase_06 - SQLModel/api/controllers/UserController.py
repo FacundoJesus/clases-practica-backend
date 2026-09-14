@@ -65,3 +65,12 @@ def updateUser(user_id: int, req: UpdateUserRequest, session: SessionDep) -> Use
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+# Quitar país asociado al usuario
+@router.patch("/user/{user_id}/remove_country", response_model=GetUserWithCountryResponse)
+def removeUserCountry(user_id: int, session: SessionDep) -> User:
+    """Remueve el país asociado a un usuario por su ID."""
+    user = userService.removeUserCountry(session, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
