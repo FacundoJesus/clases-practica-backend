@@ -8,51 +8,50 @@ from api.payload.usersDTO import (
     GetUserWithCountryResponse,
     UpdateUserRequest,
 )
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from models.users import User
-from repositories.database import SessionDep
 
 # Importamos el nuevo servicio
-from services import UserService as userService
+from services.UserService import UserService
 
 router = APIRouter()
 
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)
-def create_user(req: CreateUserRequest, session: SessionDep) -> User:
-    return userService.createUser(session, req)
+def create_user(req: CreateUserRequest, service: UserService = Depends()) -> User:
+    return service.createUser(req)
 
 # Obtener todos los usuarios
 @router.get("/user", response_model=Sequence[GetUsersResponse])
 def get_users(
-    session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
+    service: UserService = Depends()
 ) -> Sequence[User]:
-    return userService.getUsers(session, offset, limit)
+    return service.getUsers(offset, limit)
 
 # Buscar usuario por Id
 @router.get("/user/{user_id}", response_model=GetUserWithCountryResponse)
-def getUserById(user_id: int, session: SessionDep) -> User:
-    user = userService.getUserById(session, user_id)
+def getUserById(user_id: int, service: UserService = Depends()) -> User:
+    user = service.getUserById(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 # Buscar usuario por Nombre
 @router.get("/user/search/{name}")
-def getUserByName(name: str, session: SessionDep) -> Sequence[User]:
-    return userService.getUserByName(session, name)
+def getUserByName(name: str, service: UserService = Depends()) -> Sequence[User]:
+    return service.getUserByName(name)
 
 # Obtener usuarios mayores
 @router.get("/user_mayores")
-def getAdultUsers(session: SessionDep) -> Sequence[User]:
-    return userService.getAdultUsers(session)
+def getAdultUsers(service: UserService = Depends()) -> Sequence[User]:
+    return service.getAdultUsers()
 
 # Eliminar usuario
 @router.delete("/user/{user_id}")
-def deleteUserById(user_id: int, session: SessionDep):
-    deleted = userService.deleteUserById(session, user_id)
+def deleteUserById(user_id: int, service: UserService = Depends()):
+    deleted = service.deleteUserById(user_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -60,17 +59,17 @@ def deleteUserById(user_id: int, session: SessionDep):
 
 # Actualizar usuario
 @router.put("/user/{user_id}", response_model=GetUserWithCountryResponse)
-def updateUser(user_id: int, req: UpdateUserRequest, session: SessionDep) -> User:
-    user = userService.updateUser(session, user_id, req)
+def updateUser(user_id: int, req: UpdateUserRequest, service: UserService = Depends()) -> User:
+    user = service.updateUser(user_id, req)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 # Quitar país asociado al usuario
 @router.patch("/user/{user_id}/remove_country", response_model=GetUserWithCountryResponse)
-def removeUserCountry(user_id: int, session: SessionDep) -> User:
+def removeUserCountry(user_id: int, service: UserService = Depends()) -> User:
     """Remueve el país asociado a un usuario por su ID."""
-    user = userService.removeUserCountry(session, user_id)
+    user = service.removeUserCountry(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user

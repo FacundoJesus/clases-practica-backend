@@ -1,52 +1,50 @@
 from api.payload.countriesDTO import CreateCountryRequest, UpdateCountryRequest
 from models.users import Country
-from sqlmodel import Session
 from collections.abc import Sequence
-from sqlmodel import Session, col, select
+from sqlmodel import col, select
 from typing import Optional
+from repositories.database import SessionDep
 
+class CountryService:
+    def __init__(self, session: SessionDep):
+        self.session = session
 
-def createCountry(session: Session, req: CreateCountryRequest) -> Country:
-    country = Country(name=req.name)
-    session.add(country)
-    session.commit()
-    session.refresh(country)
-    return country
+    def createCountry(self, req: CreateCountryRequest) -> Country:
+        country = Country(name=req.name)
+        self.session.add(country)
+        self.session.commit()
+        self.session.refresh(country)
+        return country
 
+    def getCountries(self, offset: int, limit: int) -> Sequence[Country]:
+        statement = select(Country).offset(offset).limit(limit)
+        return self.session.exec(statement).all()
 
-def getCountries(session: Session, offset: int, limit: int) -> Sequence[Country]:
-    statement = select(Country).offset(offset).limit(limit)
-    return session.exec(statement).all()
+    def getCountryById(self, countryId: int) -> Optional[Country]:
+        return self.session.get(Country, countryId)
 
+    def getCountryByName(self, name: str) -> Sequence[Country]:
+        statement = select(Country).where(col(Country.name).like(f"%{name}%"))
+        return self.session.exec(statement).all()
 
-def getCountryById(session: Session, countryId: int) -> Optional[Country]:
-    return session.get(Country, countryId)
+    def deleteCountryById(self, country_id: int) -> bool:
+        country = self.session.get(Country, country_id)
+        if not country:
+            return False
+        
+        self.session.delete(country)
+        self.session.commit()
+        return True
 
+    def updateCountry(self, country_id: int, req: UpdateCountryRequest) -> Optional[Country]:
+        country = self.session.get(Country, country_id)
+        if not country:
+            return None
+        
+        if req.name is not None:
+            country.name = req.name
 
-def getCountryByName(session: Session, name: str) -> Sequence[Country]:
-    statement = select(Country).where(col(Country.name).like(f"%{name}%"))
-    return session.exec(statement).all()
-
-
-def deleteCountryById(session: Session, country_id: int) -> bool:
-    country = session.get(Country, country_id)
-    if not country:
-        return False
-    
-    session.delete(country)
-    session.commit()
-    return True
-
-
-def updateCountry(session: Session, country_id: int, req: UpdateCountryRequest) -> Optional[Country]:
-    country = session.get(Country, country_id)
-    if not country:
-        return None
-    
-    if req.name is not None:
-        country.name = req.name
-
-    session.add(country)
-    session.commit()
-    session.refresh(country)
-    return country
+        self.session.add(country)
+        self.session.commit()
+        self.session.refresh(country)
+        return country
