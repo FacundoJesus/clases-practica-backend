@@ -14,25 +14,27 @@ from models.users import User
 # Importamos el nuevo servicio
 from services.UserService import UserService
 
+UserServiceDep = Annotated[UserService, Depends(UserService)]
+
 router = APIRouter()
 
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)
-def create_user(req: CreateUserRequest, service: UserService = Depends()) -> User:
+def create_user(req: CreateUserRequest, service: UserServiceDep) -> User:
     return service.createUser(req)
 
 # Obtener todos los usuarios
 @router.get("/user", response_model=Sequence[GetUsersResponse])
 def get_users(
+    service: UserServiceDep,
     offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
-    service: UserService = Depends()
+    limit: Annotated[int, Query(le=100)] = 100
 ) -> Sequence[User]:
     return service.getUsers(offset, limit)
 
 # Buscar usuario por Id
 @router.get("/user/{user_id}", response_model=GetUserWithCountryResponse)
-def getUserById(user_id: int, service: UserService = Depends()) -> User:
+def getUserById(user_id: int, service: UserServiceDep) -> User:
     user = service.getUserById(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -40,17 +42,17 @@ def getUserById(user_id: int, service: UserService = Depends()) -> User:
 
 # Buscar usuario por Nombre
 @router.get("/user/search/{name}")
-def getUserByName(name: str, service: UserService = Depends()) -> Sequence[User]:
+def getUserByName(name: str, service: UserServiceDep) -> Sequence[User]:
     return service.getUserByName(name)
 
 # Obtener usuarios mayores
 @router.get("/user_mayores")
-def getAdultUsers(service: UserService = Depends()) -> Sequence[User]:
+def getAdultUsers(service: UserServiceDep) -> Sequence[User]:
     return service.getAdultUsers()
 
 # Eliminar usuario
 @router.delete("/user/{user_id}")
-def deleteUserById(user_id: int, service: UserService = Depends()):
+def deleteUserById(user_id: int, service: UserServiceDep):
     deleted = service.deleteUserById(user_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="User not found")
@@ -59,7 +61,7 @@ def deleteUserById(user_id: int, service: UserService = Depends()):
 
 # Actualizar usuario
 @router.put("/user/{user_id}", response_model=GetUserWithCountryResponse)
-def updateUser(user_id: int, req: UpdateUserRequest, service: UserService = Depends()) -> User:
+def updateUser(user_id: int, req: UpdateUserRequest, service: UserServiceDep) -> User:
     user = service.updateUser(user_id, req)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
