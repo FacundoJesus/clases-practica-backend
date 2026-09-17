@@ -2,7 +2,7 @@ from api.controllers import (
     UserController as user_controller
 )
 from fastapi import FastAPI
-from models.users import Country, UserDB  # UserDB y Country vienen del módulo de modelos
+from models.users import CountryDB, UserDB  # UserDB y CountryDB vienen del módulo de modelos
 from repositories.database import create_db_and_tables, engine
 from sqlmodel import Session, select
 
@@ -15,7 +15,7 @@ def create_dummy_data():
         if session.exec(select(UserDB)).first():
             return
         country_names = [("Argentina", 1), ("Brasil", 2)]
-        countries = [Country(name=name, id=id) for name, id in country_names]
+        countries = [CountryDB(name=name, id=id) for name, id in country_names]
 
         session.add_all(countries)
         session.commit()

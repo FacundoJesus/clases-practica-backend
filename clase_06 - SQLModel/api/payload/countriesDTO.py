@@ -1,12 +1,12 @@
-from models.users import CountryBase
+from models.users import Country
 from sqlmodel import SQLModel
 
 
-class CountryResponse(CountryBase):
+class CountryResponse(Country):
     id: int
 
 
-class CreateCountryRequest(CountryBase):
+class CreateCountryRequest(Country):
     pass
 
 
