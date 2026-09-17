@@ -3,7 +3,7 @@ from api.controllers import (
     UserController as user_controller,
 )
 from fastapi import FastAPI
-from models.users import Country, User  # User y Country vienen del módulo de modelos
+from models.users import Country, UserDB  # UserDB y Country vienen del módulo de modelos
 from repositories.database import create_db_and_tables, engine
 from sqlmodel import Session, select
 
@@ -14,7 +14,7 @@ app.include_router(country_controller.router)
 
 def create_dummy_data():
     with Session(engine) as session:
-        if session.exec(select(User)).first():
+        if session.exec(select(UserDB)).first():
             return
         country_names = [("Argentina", 1), ("Brasil", 2)]
         countries = [Country(name=name, id=id) for name, id in country_names]
@@ -35,7 +35,7 @@ def create_dummy_data():
             ("Tomás Romero", 37, 2),
         ]
         users = [
-            User(name=name, age=age, country_id=country)
+            UserDB(name=name, age=age, country_id=country)
             for name, age, country in names_and_ages
         ]
         session.add_all(users)

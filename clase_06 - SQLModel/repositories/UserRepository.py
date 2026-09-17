@@ -4,14 +4,14 @@ from fastapi import Query
 from sqlmodel import select, col
 
 from repositories.database import SessionDep
-from models.users import User
+from models.users import UserDB
 
 
 class UserRepository:
     def __init__(self, session: SessionDep):
         self.session = session
 
-    def save(self, user: User) -> User:
+    def save(self, user: UserDB) -> UserDB:
         self.session.add(user)
         self.session.commit()
         self.session.refresh(user)
@@ -21,23 +21,23 @@ class UserRepository:
         self,
         offset: int = 0,
         limit: Annotated[int, Query(le=100)] = 100,
-    )-> Sequence[User]:
-        statement = select(User).offset(offset).limit(limit)
+    )-> Sequence[UserDB]:
+        statement = select(UserDB).offset(offset).limit(limit)
         result = self.session.exec(statement)
         users = result.all()
         return users
 
-    def get_by_id(self, user_id: int) -> User | None:
-        return self.session.get(User, user_id)
+    def get_by_id(self, user_id: int) -> UserDB | None:
+        return self.session.get(UserDB, user_id)
 
-    def get_by_name(self, name: str) -> Sequence[User]:
-        statement = select(User).where(col(User.name).like(f"%{name}%"))
+    def get_by_name(self, name: str) -> Sequence[UserDB]:
+        statement = select(UserDB).where(col(UserDB.name).like(f"%{name}%"))
         return self.session.exec(statement).all()
 
-    def get_adults(self) -> Sequence[User]:
-        statement = select(User).where(User.age >= 18)
+    def get_adults(self) -> Sequence[UserDB]:
+        statement = select(UserDB).where(UserDB.age >= 18)
         return self.session.exec(statement).all()
 
-    def delete(self, user: User) -> None:
+    def delete(self, user: UserDB) -> None:
         self.session.delete(user)
         self.session.commit()

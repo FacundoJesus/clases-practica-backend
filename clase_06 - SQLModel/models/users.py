@@ -10,7 +10,7 @@ class CountryBase(SQLModel):
 #Nivel de DB
 class Country(CountryBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    users: list["User"] = Relationship(back_populates="country")
+    users: list["UserDB"] = Relationship(back_populates="country")
 
 
 # Nivel de negocio 
@@ -21,7 +21,7 @@ class UserBase(SQLModel):
     password: str | None = Field(default=None)
 
 
-class User(UserBase, table=True):
+class UserDB(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     country: Country | None = Relationship(back_populates="users")
 

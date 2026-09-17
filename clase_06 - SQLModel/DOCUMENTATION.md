@@ -26,7 +26,7 @@ El proyecto está organizado bajo un patrón de capas para separar responsabilid
 │       ├── countriesDTO.py
 │       └── usersDTO.py
 ├── models/                  # Capa de Datos / Entidades de Base de Datos
-│   └── users.py             # Definición de tablas `User` y `Country`
+│   └── users.py             # Definición de tablas `UserDB` y `Country`
 ├── repositories/            # Capa de Acceso a Datos (Infraestructura)
 │   └── database.py          # Configuración del Engine de SQLModel y dependencias de sesión
 └── services/                # Capa de Lógica de Negocio
@@ -37,7 +37,7 @@ El proyecto está organizado bajo un patrón de capas para separar responsabilid
 ### Descripción de las Capas
 
 1. **`main.py`**: Configura la instancia de FastAPI, registra los routers (controladores) y maneja eventos del ciclo de vida de la app, como la creación de la base de datos y la inyección de datos de prueba (`create_dummy_data`) al iniciar.
-2. **`models/`**: Define la estructura de las tablas en la base de datos utilizando SQLModel. Aquí encontramos las entidades `User` y `Country` y sus relaciones.
+2. **`models/`**: Define la estructura de las tablas en la base de datos utilizando SQLModel. Aquí encontramos las entidades `UserDB` y `Country` y sus relaciones.
 3. **`api/payload/ (DTOs)`**: Define los esquemas (modelos de Pydantic) utilizados para validar las peticiones entrantes (Requests) y dar formato a las respuestas salientes (Responses). Evita exponer directamente los modelos de base de datos.
 4. **`api/controllers/`**: Define los *endpoints* de la API (rutas HTTP). Se encarga de recibir la petición HTTP, llamar al servicio correspondiente (inyectándolo como dependencia) y retornar la respuesta al cliente. Ya no conoce detalles de infraestructura como sesiones de base de datos.
 5. **`services/`**: Contiene la lógica de negocio encapsulada en Clases. Recibe instrucciones desde los controladores, procesa reglas e interactúa con la base de datos. La sesión de la base de datos se inyecta directamente en su constructor.
