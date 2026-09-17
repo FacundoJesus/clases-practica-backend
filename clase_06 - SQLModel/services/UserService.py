@@ -1,14 +1,42 @@
 from typing import Annotated, Sequence
-
-from fastapi import Depends, Query
-
-from repositories.UserRepository import UserRepository
+from abc import ABC, abstractmethod
+from fastapi import Depends
 from models.users import UserDB
 from api.payload.usersDTO import CreateUserRequest, UpdateUserRequest
+from repositories.UserRepository import UserRepositoryInterface,UserRepository
 
-UserRepositoryDep = Annotated[UserRepository, Depends(UserRepository)]
+# Inyecto dependencia de repositorio
+UserRepositoryDep = Annotated[UserRepositoryInterface, Depends(UserRepository)]
 
-class UserService:
+# Interface de servicio
+class UserServiceInterface(ABC):
+    @abstractmethod
+    def createUser(self, req: CreateUserRequest) -> UserDB:
+        pass
+    @abstractmethod
+    def removeUserCountry(self, user_id: int) -> UserDB | None:
+        pass
+    @abstractmethod
+    def getUsers(self, offset: int, limit: int) -> Sequence[UserDB]:
+        pass
+    @abstractmethod
+    def getUserById(self, user_id: int) -> UserDB | None:
+        pass
+    @abstractmethod
+    def getUserByName(self, name: str) -> Sequence[UserDB]:
+        pass
+    @abstractmethod
+    def getAdultUsers(self) -> Sequence[UserDB]:
+        pass
+    @abstractmethod
+    def deleteUserById(self, user_id: int) -> bool:
+        pass
+    @abstractmethod
+    def updateUser(self, user_id: int, req: UpdateUserRequest) -> UserDB | None:
+        pass
+
+
+class UserService(UserServiceInterface):
     def __init__(self, repo: UserRepositoryDep):
         self.repo = repo
 

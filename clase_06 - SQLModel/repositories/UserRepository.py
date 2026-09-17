@@ -1,13 +1,33 @@
 from typing import Annotated, Sequence
-
+from abc import ABC, abstractmethod
 from fastapi import Query
 from sqlmodel import select, col
 
 from repositories.database import SessionDep
 from models.users import UserDB
 
+# Interface de repositorio
+class UserRepositoryInterface(ABC):
+    @abstractmethod
+    def save(self, user: UserDB) -> UserDB:
+        pass
+    @abstractmethod
+    def get_all(self, offset: int, limit: int) -> Sequence[UserDB]:
+        pass
+    @abstractmethod
+    def get_by_id(self, user_id: int) -> UserDB | None:
+        pass
+    @abstractmethod
+    def get_by_name(self, name: str) -> Sequence[UserDB]:
+        pass
+    @abstractmethod
+    def get_adults(self) -> Sequence[UserDB]:
+        pass
+    @abstractmethod
+    def delete(self, user: UserDB) -> None:
+        pass
 
-class UserRepository:
+class UserRepository(UserRepositoryInterface):
     def __init__(self, session: SessionDep):
         self.session = session
 

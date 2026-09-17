@@ -9,12 +9,11 @@ from api.payload.usersDTO import (
     UpdateUserRequest,
 )
 from fastapi import APIRouter, HTTPException, Query, Depends
-from models.users import UserDB
+from models.users import User, UserDB
+from services.UserService import UserServiceInterface,UserService
 
-# Importamos el nuevo servicio
-from services.UserService import UserService
-
-UserServiceDep = Annotated[UserService, Depends(UserService)]
+# Inyecto dependencia de servicio
+UserServiceDep = Annotated[UserServiceInterface, Depends(UserService)]
 
 router = APIRouter()
 
