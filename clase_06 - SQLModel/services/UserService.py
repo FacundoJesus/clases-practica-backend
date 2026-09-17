@@ -13,7 +13,7 @@ class UserService:
         self.repo = repo
 
     def createUser(self, req: CreateUserRequest) -> User:
-        user = User(name=req.name, age=req.age, country_id=req.country_id)
+        user = User(name=req.name, age=req.age, country_id=req.country_id,password=req.password)
         return self.repo.save(user)
 
     def removeUserCountry(self, user_id: int) -> User | None:
