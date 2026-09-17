@@ -50,8 +50,8 @@ def getAdultUsers(service: UserServiceDep) -> Sequence[UserDB]:
     return service.getAdultUsers()
 
 # Eliminar usuario
-@router.delete("/user/{user_id}")
-def deleteUserById(user_id: int, service: UserServiceDep):
+@router.delete("/user/{user_id}", response_model=dict[str, str])
+def deleteUserById(user_id: int, service: UserServiceDep) -> dict[str, str]:
     deleted = service.deleteUserById(user_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="User not found")
