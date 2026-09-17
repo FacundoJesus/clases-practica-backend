@@ -1,6 +1,5 @@
 from api.controllers import (
-    CountryController as country_controller,
-    UserController as user_controller,
+    UserController as user_controller
 )
 from fastapi import FastAPI
 from models.users import Country, UserDB  # UserDB y Country vienen del módulo de modelos
@@ -9,7 +8,6 @@ from sqlmodel import Session, select
 
 app = FastAPI()
 app.include_router(user_controller.router)
-app.include_router(country_controller.router)
 
 
 def create_dummy_data():
