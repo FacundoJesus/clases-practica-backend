@@ -11,7 +11,7 @@ UserRepositoryDep = Annotated[UserRepositoryInterface, Depends(UserRepository)]
 # Interface de servicio
 class UserServiceInterface(ABC):
     @abstractmethod
-    def createUser(self, req: CreateUserRequest) -> UserDB:
+    def createUser(self, userRequest: CreateUserRequest) -> UserDB:
         pass
     @abstractmethod
     def removeUserCountry(self, user_id: int) -> UserDB | None:
@@ -40,8 +40,8 @@ class UserService(UserServiceInterface):
     def __init__(self, repo: UserRepositoryDep):
         self.repo = repo
 
-    def createUser(self, req: CreateUserRequest) -> UserDB:
-        user = UserDB(name=req.name, age=req.age, country_id=req.country_id,password=req.password)
+    def createUser(self, userRequest: CreateUserRequest) -> UserDB:
+        user = UserDB(name=userRequest.name, age=userRequest.age, country_id=userRequest.country_id)
         return self.repo.save(user)
 
     def removeUserCountry(self, user_id: int) -> UserDB | None:
