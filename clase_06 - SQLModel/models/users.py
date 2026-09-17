@@ -14,14 +14,14 @@ class Country(CountryBase, table=True):
 
 
 # Nivel de negocio 
-class UserBase(SQLModel):
+class User(SQLModel):
     name: str = Field(index=True)
     age: int
     country_id: int | None = Field(default=None, foreign_key="country.id")
     password: str | None = Field(default=None)
 
 
-class UserDB(UserBase, table=True):
+class UserDB(User, table=True):
     id: int | None = Field(default=None, primary_key=True)
     country: Country | None = Relationship(back_populates="users")
 
