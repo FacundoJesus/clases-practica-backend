@@ -1,38 +1,36 @@
+from models.users import User
 from typing import Annotated, Sequence
 from abc import ABC, abstractmethod
 from fastapi import Depends
 from models.users import UserDB
 from api.payload.usersDTO import CreateUserRequest, UpdateUserRequest
-from repositories.UserRepository import UserRepositoryInterface,UserRepository
+from repositories.UserRepository import UserRepository
 
 # Inyecto dependencia de repositorio
-UserRepositoryDep = Annotated[UserRepositoryInterface, Depends(UserRepository)]
+UserRepositoryDep = Annotated[UserRepository, Depends(UserRepository)]
 
 # Interface de servicio
 class UserServiceInterface(ABC):
     @abstractmethod
-    def createUser(self, userRequest: CreateUserRequest) -> UserDB:
+    def create_user(self, user: User) -> UserDB:
         pass
     @abstractmethod
-    def removeUserCountry(self, user_id: int) -> UserDB | None:
+    def get_users(self, offset: int, limit: int) -> Sequence[UserDB]:
         pass
     @abstractmethod
-    def getUsers(self, offset: int, limit: int) -> Sequence[UserDB]:
+    def get_user_by_id(self, user_id: int) -> UserDB | None:
         pass
     @abstractmethod
-    def getUserById(self, user_id: int) -> UserDB | None:
+    def get_user_by_name(self, name: str) -> Sequence[UserDB]:
         pass
     @abstractmethod
-    def getUserByName(self, name: str) -> Sequence[UserDB]:
+    def get_adult_users(self) -> Sequence[UserDB]:
         pass
     @abstractmethod
-    def getAdultUsers(self) -> Sequence[UserDB]:
+    def delete_user_by_id(self, user_id: int):
         pass
     @abstractmethod
-    def deleteUserById(self, user_id: int) -> bool:
-        pass
-    @abstractmethod
-    def updateUser(self, user_id: int, req: UpdateUserRequest) -> UserDB | None:
+    def update_user(self, user_id: int, user: User) -> UserDB | None:
         pass
 
 
@@ -40,49 +38,23 @@ class UserService(UserServiceInterface):
     def __init__(self, repo: UserRepositoryDep):
         self.repo = repo
 
-    def createUser(self, userRequest: CreateUserRequest) -> UserDB:
-        user = UserDB(name=userRequest.name, age=userRequest.age, country_id=userRequest.country_id)
-        return self.repo.save(user)
+    def create_user(self, user: User) -> UserDB:
+        return self.repo.create_user(user)
 
-    def removeUserCountry(self, user_id: int) -> UserDB | None:
-        """Remueve el país asociado a un usuario por su ID."""
-        user = self.repo.get_by_id(user_id)
-        if not user:
-            return None
-        
-        user.country_id = None
-        return self.repo.save(user)
-
-    def getUsers(self, offset: int, limit: int) -> Sequence[UserDB]:
+    def get_users(self, offset: int, limit: int) -> Sequence[UserDB]:
         return self.repo.get_all(offset, limit)
 
-    def getUserById(self, user_id: int) -> UserDB | None:
+    def get_user_by_id(self, user_id: int) -> UserDB | None:
         return self.repo.get_by_id(user_id)
 
-    def getUserByName(self, name: str) -> Sequence[UserDB]:
+    def get_user_by_name(self, name: str) -> Sequence[UserDB]:
         return self.repo.get_by_name(name)
 
-    def getAdultUsers(self) -> Sequence[UserDB]:
+    def get_adult_users(self) -> Sequence[UserDB]:
         return self.repo.get_adults()
 
-    def deleteUserById(self, user_id: int) -> bool:
-        user = self.repo.get_by_id(user_id)
-        if not user:
-            return False # Retorna Falso si el usuario no existe
-        
-        self.repo.delete(user)
-        return True # Retorna Verdadero si se eliminó con éxito
+    def delete_user_by_id(self, user_id: int):
+        return self.repo.delete(user_id)
 
-    def updateUser(self, user_id: int, req: UpdateUserRequest) -> UserDB | None:
-        user = self.repo.get_by_id(user_id)
-        if not user:
-            return None # Retorna None si no existe
-        
-        # Extraemos solo los datos que el usuario envió en la petición HTTP
-        update_data = req.model_dump(exclude_unset=True) 
-        
-        # Actualizamos los atributos del modelo UserDB dinámicamente
-        for key, value in update_data.items():
-            setattr(user, key, value)
-            
-        return self.repo.save(user)
+    def update_user(self, user_id: int, user: User) -> UserDB | None:
+        return self.repo.update_user(user_id, user=user)

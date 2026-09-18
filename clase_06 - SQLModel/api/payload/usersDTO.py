@@ -21,8 +21,9 @@ class GetUserWithCountryResponse(GetUsersResponse):
     country: CountryResponse | None = None
 
 class UpdateUserRequest(SQLModel):
-    name: str | None = None
-    age: int | None = None
-    country_id: int | None = None
+    name: str 
+    age: int 
+    country_id: int | None
 
-
+class DeleteUserResponse(SQLModel):
+    msj:str

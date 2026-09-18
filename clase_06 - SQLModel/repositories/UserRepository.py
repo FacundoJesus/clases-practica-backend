@@ -1,3 +1,4 @@
+from models.users import User
 from typing import Annotated, Sequence
 from abc import ABC, abstractmethod
 from fastapi import Query
@@ -6,36 +7,16 @@ from sqlmodel import select, col
 from repositories.database import SessionDep
 from models.users import UserDB
 
-# Interface de repositorio
-class UserRepositoryInterface(ABC):
-    @abstractmethod
-    def save(self, user: UserDB) -> UserDB:
-        pass
-    @abstractmethod
-    def get_all(self, offset: int, limit: int) -> Sequence[UserDB]:
-        pass
-    @abstractmethod
-    def get_by_id(self, user_id: int) -> UserDB | None:
-        pass
-    @abstractmethod
-    def get_by_name(self, name: str) -> Sequence[UserDB]:
-        pass
-    @abstractmethod
-    def get_adults(self) -> Sequence[UserDB]:
-        pass
-    @abstractmethod
-    def delete(self, user: UserDB) -> None:
-        pass
-
-class UserRepository(UserRepositoryInterface):
+class UserRepository:
     def __init__(self, session: SessionDep):
         self.session = session
 
-    def save(self, user: UserDB) -> UserDB:
-        self.session.add(user)
+    def create_user(self, user: User) -> UserDB:
+        userDb = UserDB(name=user.name, age=user.age, country_id=user.country_id)
+        self.session.add(userDb)
         self.session.commit()
-        self.session.refresh(user)
-        return user
+        self.session.refresh(userDb)
+        return userDb
 
     def get_all(
         self,
@@ -58,6 +39,19 @@ class UserRepository(UserRepositoryInterface):
         statement = select(UserDB).where(UserDB.age >= 18)
         return self.session.exec(statement).all()
 
-    def delete(self, user: UserDB) -> None:
+    def delete(self, user_id: int):
+        user = self.session.get(UserDB, user_id)
         self.session.delete(user)
         self.session.commit()
+
+
+    def update_user(self, user_id: int, user: User) -> UserDB | None:
+        userDb = self.session.get(UserDB, user_id)
+        if userDb:
+            userDb.age = user.age
+            userDb.name = user.name
+            userDb.country_id = user.country_id
+            self.session.add(userDb)
+            self.session.commit()
+            self.session.refresh(userDb)
+        return userDb
