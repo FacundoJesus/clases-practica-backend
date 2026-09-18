@@ -53,7 +53,7 @@ class UserService(UserServiceInterface):
     def get_adult_users(self) -> Sequence[UserDB]:
         return self.repo.get_adults()
 
-    def delete_user_by_id(self, user_id: int):
+    def delete_user_by_id(self, user_id: int) -> None:
         return self.repo.delete(user_id)
 
     def update_user(self, user_id: int, user: User) -> UserDB | None:

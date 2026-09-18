@@ -19,8 +19,8 @@ router = APIRouter()
 
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)
-def create_user(userRequest: CreateUserRequest, service: UserServiceDep) -> UserDB:
-    newUser = User(name=userRequest.name, age=userRequest.age, country_id=userRequest.country_id)
+def create_user(createUserReq: CreateUserRequest, service: UserServiceDep) -> UserDB:
+    newUser = User(name=createUserReq.name, age=createUserReq.age, country_id=createUserReq.country_id)
     return service.create_user(newUser)
 
 # Obtener todos los usuarios
