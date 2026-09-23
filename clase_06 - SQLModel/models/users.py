@@ -17,9 +17,7 @@ class User(SQLModel):
     country_id: int | None = Field(default=None, foreign_key="countrydb.id")
     password: str | None = Field(default=None)
 
-# Nivel de DB
+# Nivel de DB ..
 class UserDB(User, table=True):
     id: int | None = Field(default=None, primary_key=True)
     country: CountryDB | None = Relationship(back_populates="users")
-
-
