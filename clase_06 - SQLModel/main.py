@@ -1,14 +1,30 @@
 from api.controllers import (
     UserController as user_controller
 )
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from models.users import CountryDB, UserDB  # UserDB y CountryDB vienen del módulo de modelos
 from repositories.database import create_db_and_tables, engine
 from sqlmodel import Session, select
+import logging
+import time
 
 app = FastAPI()
 app.include_router(user_controller.router)
 
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+)
+
+@app.middleware("prueba")
+def middle_ware_prueba(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = call_next(request)
+    process_time = time.perf_counter() - start_time
+    logger.info(f"process time {str(process_time)}")
+    return response
 
 def create_dummy_data():
     with Session(engine) as session:
