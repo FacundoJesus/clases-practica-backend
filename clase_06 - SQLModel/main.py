@@ -6,7 +6,7 @@ from models.users import CountryDB, UserDB  # UserDB y CountryDB vienen del mód
 from repositories.database import create_db_and_tables, engine
 from sqlmodel import Session, select
 import logging
-import time
+from api.middlewares.counter import CounterMW
 
 app = FastAPI()
 app.include_router(user_controller.router)
@@ -18,13 +18,11 @@ logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
 )
 
-@app.middleware("prueba")
+counterMW = CounterMW()
+
+@app.middleware("counter")
 def middle_ware_prueba(request: Request, call_next):
-    start_time = time.perf_counter()
-    response = call_next(request)
-    process_time = time.perf_counter() - start_time
-    logger.info(f"process time {str(process_time)}")
-    return response
+    return counterMW.middle_ware_prueba(request, call_next)
 
 def create_dummy_data():
     with Session(engine) as session:
