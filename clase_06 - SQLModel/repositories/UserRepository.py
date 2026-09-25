@@ -12,7 +12,7 @@ class UserRepository:
         self.session = session
 
     def create_user(self, user: User) -> UserDB:
-        userDb = UserDB(name=user.name, age=user.age, country_id=user.country_id)
+        userDb = UserDB(name=user.name, age=user.age, country_id=user.country_id, email=user.email, password=user.password)
         self.session.add(userDb)
         self.session.commit()
         self.session.refresh(userDb)
@@ -51,6 +51,8 @@ class UserRepository:
             userDb.age = user.age
             userDb.name = user.name
             userDb.country_id = user.country_id
+            userDb.email = user.email
+            userDb.password = user.password
             self.session.add(userDb)
             self.session.commit()
             self.session.refresh(userDb)

@@ -1,12 +1,15 @@
 from .countriesDTO import CountryResponse
-from sqlmodel import SQLModel
+from pydantic import EmailStr
+from sqlmodel import SQLModel, Field
 
 
+#Nivel API
 class CreateUserRequest(SQLModel):
     name: str
     age: int
     country_id: int | None
-    password: str
+    email: EmailStr
+    password: str = Field(max_length=10, min_length=4)
 
 class CreateUserResponse(SQLModel):
     id: int
@@ -21,9 +24,11 @@ class GetUserWithCountryResponse(GetUsersResponse):
     country: CountryResponse | None = None
 
 class UpdateUserRequest(SQLModel):
-    name: str 
-    age: int 
+    name: str
+    age: int
     country_id: int | None
+    email: EmailStr
+    password: str = Field(max_length=10, min_length=4)
 
 class DeleteUserResponse(SQLModel):
     msj:str

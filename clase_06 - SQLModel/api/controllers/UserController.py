@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Sequence
+from typing import Annotated
 from api.payload.usersDTO import (
     CreateUserRequest,
     CreateUserResponse,
@@ -8,7 +8,7 @@ from api.payload.usersDTO import (
     UpdateUserRequest,
     DeleteUserResponse
 )
-from fastapi import APIRouter, Depends, HTTPException, Header, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from models.users import User, UserDB
 from services.UserService import UserServiceInterface,UserService
 
@@ -25,7 +25,8 @@ router = APIRouter(dependencies=[Depends(verify_api_key_header)])
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)
 def create_user(createUserReq: CreateUserRequest, service: UserServiceDep) -> UserDB:
-    newUser = User(name=createUserReq.name, age=createUserReq.age, country_id=createUserReq.country_id)
+    newUser = User(name=createUserReq.name, age=createUserReq.age, email=createUserReq.email, 
+                   password=createUserReq.password, country_id=createUserReq.country_id)
     return service.create_user(newUser)
 
 # Obtener todos los usuarios
@@ -72,7 +73,8 @@ def delete_user_by_id(user_id: int, service: UserServiceDep) -> DeleteUserRespon
 # Actualizar usuario
 @router.patch("/user/{user_id}", response_model=GetUserWithCountryResponse)
 def update_user(user_id: int, updateUserReq: UpdateUserRequest, service: UserServiceDep) -> UserDB:
-    user = User(name=updateUserReq.name, age=updateUserReq.age, country_id=updateUserReq.country_id)
+    user = User(name=updateUserReq.name, age=updateUserReq.age, email=updateUserReq.email, 
+                       password=updateUserReq.password, country_id=updateUserReq.country_id)
     response= service.update_user(user_id, user)
     if not response:
         raise HTTPException(status_code=404, detail="User not found")

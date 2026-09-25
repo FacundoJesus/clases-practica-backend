@@ -1,16 +1,17 @@
 from api.controllers import (
     UserController as user_controller
 )
+
 from fastapi import FastAPI, Request
 from models.users import CountryDB, UserDB  # UserDB y CountryDB vienen del módulo de modelos
 from repositories.database import create_db_and_tables, engine
+
 from sqlmodel import Session, select
 import logging
 from api.middlewares.counter import CounterMW
 from api.middlewares.check_apikey import CheckApikeyMW
 
-app = FastAPI()
-app.include_router(user_controller.router)
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,9 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
 )
+
+app = FastAPI()
+app.include_router(user_controller.router)
 
 counterMW = CounterMW()
 checkApikeyMW = CheckApikeyMW()
@@ -41,21 +45,20 @@ def create_dummy_data():
         session.commit()
 
         names_and_ages = [
-            ("Martina Gómez", 28, 1),
-            ("Santiago Fernández", 34, 1),
-            ("Valentina López", 22, 1),
-            ("Mateo Rodríguez", 45, 1),
-            ("Camila Martínez", 19, 2),
-            ("Lucas Pérez", 31, 2),
-            ("Sofía García", 27, 2),
-            ("Nicolás Sánchez", 40, 2),
-            ("Julieta Díaz", 24, 2),
-            ("Tomás Romero", 37, 2),
+            ("Martina Gómez", "mgomez@email.com", 28, 1),
+            ("Santiago Fernández", "sfer@email.com", 34, 1),
+            ("Valentina López", "vlo@email.com", 22, 1),
+            ("Mateo Rodríguez", "mro@email.com", 45, 1),
+            ("Camila Martínez", "cma@email.com", 19, 2),
+            ("Lucas Pérez", "lpe@email.com", 31, 2),
+            ("Sofía García", "sga@email.com", 27, 2),
+            ("Nicolás Sánchez", "nsa@email.com", 40, 2),
+            ("Julieta Díaz", "jdi@email.com", 24, 2),
+            ("Tomás Romero", "tro@email.com", 37, 2),
         ]
-        users = [
-            UserDB(name=name, age=age, country_id=country)
-            for name, age, country in names_and_ages
-        ]
+        users = [UserDB(name=name, email=email, age=age, country_id=country, password="123") 
+                 for name, email, age, country in names_and_ages]
+        
         session.add_all(users)
         session.commit()
 
