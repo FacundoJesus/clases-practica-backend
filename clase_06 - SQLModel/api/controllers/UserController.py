@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated
+from typing import Annotated, Sequence
 from api.payload.usersDTO import (
     CreateUserRequest,
     CreateUserResponse,
@@ -8,14 +8,19 @@ from api.payload.usersDTO import (
     UpdateUserRequest,
     DeleteUserResponse
 )
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, Depends, HTTPException, Header, Query, Request
 from models.users import User, UserDB
 from services.UserService import UserServiceInterface,UserService
+
 
 # Inyecto dependencia de servicio
 UserServiceDep = Annotated[UserServiceInterface, Depends(UserService)]
 
-router = APIRouter()
+
+def verify_api_key_header(x_api_key: Annotated[str, Header()]) -> str:
+    return x_api_key
+
+router = APIRouter(dependencies=[Depends(verify_api_key_header)])
 
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)
