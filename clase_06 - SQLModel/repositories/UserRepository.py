@@ -57,3 +57,9 @@ class UserRepository:
             self.session.commit()
             self.session.refresh(userDb)
         return userDb
+
+
+    def get_by_email(self, email: str) -> UserDB | None:
+        statement = select(UserDB).where(col(UserDB.email) == email)
+        result = self.session.exec(statement)
+        return result.first()

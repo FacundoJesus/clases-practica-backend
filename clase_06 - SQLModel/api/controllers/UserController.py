@@ -8,6 +8,7 @@ from api.payload.usersDTO import (
     UpdateUserRequest,
     DeleteUserResponse
 )
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from models.users import User, UserDB
 from services.UserService import UserServiceInterface,UserService
@@ -20,7 +21,7 @@ UserServiceDep = Annotated[UserServiceInterface, Depends(UserService)]
 def verify_api_key_header(x_api_key: Annotated[str, Header()]) -> str:
     return x_api_key
 
-router = APIRouter(dependencies=[Depends(verify_api_key_header)])
+router = APIRouter(dependencies=[Depends(verify_api_key_header)],tags=["Users"])
 
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)

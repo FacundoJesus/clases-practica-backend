@@ -1,7 +1,7 @@
 from api.controllers import (
     UserController as user_controller
 )
-
+from api.controllers import login_controller
 from fastapi import FastAPI, Request
 from models.users import CountryDB, UserDB  # UserDB y CountryDB vienen del módulo de modelos
 from repositories.database import create_db_and_tables, engine
@@ -21,7 +21,9 @@ logging.basicConfig(
 )
 
 app = FastAPI()
+
 app.include_router(user_controller.router)
+app.include_router(login_controller.router)
 
 counterMW = CounterMW()
 checkApikeyMW = CheckApikeyMW()
