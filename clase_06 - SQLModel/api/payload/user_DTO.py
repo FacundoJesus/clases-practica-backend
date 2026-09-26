@@ -1,4 +1,4 @@
-from .countriesDTO import CountryResponse
+from .country_DTO import CountryResponse
 from pydantic import EmailStr
 from sqlmodel import SQLModel, Field
 

@@ -1,5 +1,5 @@
 from api.controllers import (
-    UserController as user_controller
+    user_controller as user_controller
 )
 from api.controllers import login_controller
 from fastapi import FastAPI, Request
@@ -10,8 +10,6 @@ from sqlmodel import Session, select
 import logging
 from api.middlewares.counter import CounterMW
 from api.middlewares.check_apikey import CheckApikeyMW
-
-
 
 logger = logging.getLogger(__name__)
 

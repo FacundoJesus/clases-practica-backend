@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from typing import Annotated
-from api.payload.usersDTO import (
+from api.payload.user_DTO import (
     CreateUserRequest,
     CreateUserResponse,
     GetUsersResponse,
@@ -11,7 +11,7 @@ from api.payload.usersDTO import (
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from models.users import User, UserDB
-from services.UserService import UserServiceInterface,UserService
+from services.user_service import UserServiceInterface, UserService
 
 
 # Inyecto dependencia de servicio

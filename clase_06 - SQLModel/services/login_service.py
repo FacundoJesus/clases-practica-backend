@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from repositories.UserRepository import UserRepository
+from repositories.user_repository import UserRepository
 
 UserRepositoryDep = Annotated[UserRepository, Depends(UserRepository)]
 

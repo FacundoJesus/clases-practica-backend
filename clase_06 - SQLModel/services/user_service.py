@@ -3,8 +3,8 @@ from typing import Annotated, Sequence
 from abc import ABC, abstractmethod
 from fastapi import Depends
 from models.users import UserDB
-from api.payload.usersDTO import CreateUserRequest, UpdateUserRequest
-from repositories.UserRepository import UserRepository
+from api.payload.user_DTO import CreateUserRequest, UpdateUserRequest
+from repositories.user_repository import UserRepository
 
 # Inyecto dependencia de repositorio
 UserRepositoryDep = Annotated[UserRepository, Depends(UserRepository)]

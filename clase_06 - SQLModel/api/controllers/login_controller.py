@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from api.payload.loginDTO import LoginRequest, LoginResponse
-from services.LoginService import LoginService
+from api.payload.login_DTO import LoginRequest, LoginResponse
+from services.login_service import LoginService
 
 router = APIRouter(tags=["Auth"])
 LoginServiceDep = Annotated[LoginService, Depends(LoginService)]
