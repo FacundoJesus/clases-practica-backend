@@ -10,6 +10,7 @@ from sqlmodel import Session, select
 import logging
 from api.middlewares.counter import CounterMW
 from api.middlewares.check_apikey import CheckApikeyMW
+from utils.hash import hash_password
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,8 @@ def create_dummy_data():
             ("Julieta Díaz", "jdi@email.com", 24, 2),
             ("Tomás Romero", "tro@email.com", 37, 2),
         ]
-        users = [UserDB(name=name, email=email, age=age, country_id=country, password="123") 
+        hashed_password = hash_password("123")
+        users = [UserDB(name=name, email=email, age=age, country_id=country, password=hashed_password) 
                  for name, email, age, country in names_and_ages]
         
         session.add_all(users)

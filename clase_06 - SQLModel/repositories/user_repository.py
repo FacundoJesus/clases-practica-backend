@@ -6,13 +6,15 @@ from sqlmodel import select, col
 
 from repositories.database import SessionDep
 from models.users import UserDB
+from utils.hash import hash_password
 
 class UserRepository:
     def __init__(self, session: SessionDep):
         self.session = session
 
     def create_user(self, user: User) -> UserDB:
-        userDb = UserDB(name=user.name, age=user.age, country_id=user.country_id, email=user.email, password=user.password)
+        hashed_pwd = hash_password(user.password)
+        userDb = UserDB(name=user.name, age=user.age, country_id=user.country_id, email=user.email, password=hashed_pwd)
         self.session.add(userDb)
         self.session.commit()
         self.session.refresh(userDb)

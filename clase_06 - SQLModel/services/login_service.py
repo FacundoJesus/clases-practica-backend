@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from repositories.user_repository import UserRepository
+from utils.hash import verify_password
 
 UserRepositoryDep = Annotated[UserRepository, Depends(UserRepository)]
 
@@ -15,4 +16,4 @@ class LoginService():
         user = self.repo.get_by_email(email)
         if not user:
             return False
-        return user.password == password
+        return verify_password(password, user.password)
