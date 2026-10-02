@@ -18,10 +18,10 @@ from services.user_service import UserServiceInterface, UserService
 UserServiceDep = Annotated[UserServiceInterface, Depends(UserService)]
 
 
-def verify_api_key_header(x_api_key: Annotated[str, Header()]) -> str:
-    return x_api_key
+def verify_token_header(jwt_token: Annotated[str, Header()]) -> str:
+   return jwt_token
 
-router = APIRouter(dependencies=[Depends(verify_api_key_header)],tags=["Users"])
+router = APIRouter(tags=["Users"])
 
 # Crear usuario
 @router.post("/user", response_model=CreateUserResponse)

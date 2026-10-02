@@ -9,7 +9,6 @@ from repositories.database import create_db_and_tables, engine
 from sqlmodel import Session, select
 import logging
 from api.middlewares.counter import CounterMW
-from api.middlewares.check_apikey import CheckApikeyMW
 from utils.hash import hash_password
 
 logger = logging.getLogger(__name__)
@@ -25,15 +24,11 @@ app.include_router(user_controller.router)
 app.include_router(login_controller.router)
 
 counterMW = CounterMW()
-checkApikeyMW = CheckApikeyMW()
 
 @app.middleware("counter")
 def middle_ware_prueba(request: Request, call_next):
     return counterMW.middle_ware_prueba(request, call_next)
 
-@app.middleware("apikey")
-async def middle_ware_apikey(request: Request, call_next):
-    return await checkApikeyMW.verify_header_middleware(request, call_next)
 
 def create_dummy_data():
     with Session(engine) as session:

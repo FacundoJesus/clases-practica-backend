@@ -57,3 +57,16 @@ El sistema utiliza la **Inyección de Dependencias** fuertemente (mediante `fast
    Toda manipulación de la BD ocurre aquí (`add`, `commit`, `refresh`, `delete`). Reciben los modelos de negocio y construyen los modelos de base de datos (`UserDB`).
 6. **Las Respuestas en el Controlador:**
    El Controlador debe definir el formato de salida mediante el argumento `response_model` del decorador del router (ej. `@router.get("/user", response_model=Sequence[GetUsersResponse])`), y confiar en que FastAPI serializará correctamente el objeto (generalmente de tipo `ModelDB`) retornado por el servicio.
+
+
+## 4. Autenticación, Autorización y Middlewares
+
+- **Middlewares (`api/middlewares/`)**:
+  - Deben ser clases que encapsulan la lógica de intercepción (ej. `CheckApikeyMW`).
+  - Interceptan las peticiones HTTP antes de que lleguen a los controladores.
+  - Tienen la responsabilidad de autorizar o denegar el acceso devolviendo primitivas de respuesta directa (como `JSONResponse`) en caso de error, o de delegar el flujo a la siguiente capa utilizando `call_next(request)`.
+- **Login y Seguridad (`services/`, `utils/`)**:
+  - La validación de credenciales (correo y contraseña) se debe realizar en la capa de servicios (ej. `LoginService`), consultando al repositorio.
+  - La creación y manejo de tokens (JWT) se aísla en servicios especializados (ej. `JWTService`).
+  - El hashing y verificación de contraseñas no debe estar ni en el controlador ni en el servicio directamente; debe extraerse a utilidades genéricas en el directorio `utils/` (ej. `utils/hash.py`).
+  - El controlador (`login_controller.py`) solo recibe el DTO, coordina los servicios de validación y de tokens, y retorna la respuesta final (`LoginResponse`), lanzando `HTTPException` únicamente si falla el proceso (siguiendo las excepciones de negocio delegadas al controlador).
